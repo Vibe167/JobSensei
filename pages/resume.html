@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Professional Resume Builder</title>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link href="/css/resume.css" rel="stylesheet" type="text/css" />
+    <!-- Add print styles for PDF optimization -->
+    <style>
+        @media print {
+            body {
+                margin: 0;
+                padding: 0;
+                background: white;
+            }
+            .resume-template {
+                width: 100%;
+                height: 100%;
+                padding: 0.5in;
+                margin: 0;
+                overflow: hidden;
+                box-sizing: border-box;
+                page-break-inside: avoid;
+            }
+            .resume-two-column {
+                display: flex;
+                gap: 20px;
+            }
+            .resume-left-column {
+                flex: 0 0 40%;
+            }
+            .resume-right-column {
+                flex: 0 0 60%;
+            }
+        }
+    </style>
+</head>
+<body class="dark-theme">
+    <div class="app-container">
+        <button id="themeToggle" class="btn secondary" style="position: fixed; bottom: 20px; right: 20px; border-radius: 50%; width: 50px; height: 50px; z-index: 1000;">
+        ☀️
+    </button>
+        <header>
+            <h1>Resume Builder</h1>
+            <p class="subtitle">Create your professional resume in minutes</p>
+            <div class="progress-tracker">
+                <div class="progress-bar">
+                    <div class="progress" id="progressBar"></div>
+                </div>
+                <div class="steps">
+                    <div class="step active" data-step="1">Personal</div>
+                    <div class="step" data-step="2">Education</div>
+                    <div class="step" data-step="3">Experience</div>
+                    <div class="step" data-step="4">Projects</div>
+                    <div class="step" data-step="5">Skills</div>
+                    <div class="step" data-step="6">Template</div>
+                    <div class="step" data-step="7">AI Review</div>
+                </div>
+            </div>
+        </header>
+
+        <main class="content">
+            <section class="form-section">
+                <form id="resumeForm">
+                    <div class="form-group active" data-step="1">
+                        <h2>Personal Information</h2>
+                        <input type="text" id="fullName" placeholder="Full Name" required>
+                        <input type="email" id="email" placeholder="Email" required>
+                        <input type="tel" id="phone" placeholder="Phone Number">
+                        <textarea id="summary" placeholder="Professional Summary"></textarea>
+                    </div>
+
+                    <div class="form-group" data-step="2">
+                        <h2>Education</h2>
+                        <div id="educationFields">
+                            <input type="text" placeholder="School/University Name">
+                            <input type="text" placeholder="Degree">
+                            <input type="text" placeholder="Field of Study">
+                            <div class="date-range">
+                                <input type="text" placeholder="Start Year">
+                                <input type="text" placeholder="End Year (or Expected)">
+                            </div>
+                            <textarea placeholder="Academic Achievements & Activities"></textarea>
+                        </div>
+                        <button type="button" class="btn add-btn" id="addEducation">+ Add Education</button>
+                    </div>
+
+                    <div class="form-group" data-step="3">
+                        <h2>Work Experience</h2>
+                        <div id="experienceFields">
+                            <input type="text" placeholder="Company Name">
+                            <input type="text" placeholder="Position">
+                            <div class="date-range">
+                                <input type="date" placeholder="Start Date">
+                                <input type="date" placeholder="End Date">
+                            </div>
+                            <textarea placeholder="Job Description"></textarea>
+                        </div>
+                        <button type="button" class="btn add-btn" id="addExperience">+ Add Experience</button>
+                    </div>
+
+                    <div class="form-group" data-step="4">
+                        <h2>Projects</h2>
+                        <div id="projectFields">
+                            <input type="text" placeholder="Project Name">
+                            <input type="text" placeholder="Technologies Used">
+                            <textarea placeholder="Project Description"></textarea>
+                        </div>
+                        <button type="button" class="btn add-btn" id="addProject">+ Add Project</button>
+                    </div>
+
+                    <div class="form-group" data-step="5">
+                        <h2>Skills & Languages</h2>
+                        <input type="text" id="skills" placeholder="Skills (comma separated)">
+                        <div class="skills-chips" id="skillsDisplay"></div>
+                        <input type="text" id="languages" placeholder="Programming Languages">
+                        <div class="skills-chips" id="languagesDisplay"></div>
+                    </div>
+
+                    <div class="form-group" data-step="6">
+                        <h2>Choose Template</h2>
+                        <div class="template-grid">
+                            <div class="template-card" data-template="modern">
+                                <h3>Modern</h3>
+                                <p>Clean and professional design with a modern touch</p>
+                            </div>
+                            <div class="template-card" data-template="classic">
+                                <h3>Classic</h3>
+                                <p>Traditional layout perfect for all industries</p>
+                            </div>
+                            <div class="template-card" data-template="creative">
+                                <h3>Creative</h3>
+                                <p>Stand out with a unique and creative design</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group" data-step="7">
+                        <h2>AI Resume Analysis</h2>
+                        <div class="ai-suggestions" id="aiSuggestions">
+                            <div class="suggestion-card">
+                                <h3>Loading Analysis...</h3>
+                                <p>Our AI is reviewing your resume for improvements...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="button" class="btn secondary" id="prevBtn">Previous</button>
+                        <button type="button" class="btn primary" id="nextBtn">Next</button>
+                    </div>
+                </form>
+            </section>
+
+            <section class="preview-section">
+                <div class="preview-header">
+                    <h2>Live Preview</h2>
+                    <div class="preview-actions">
+                        <button class="btn analyze-btn" id="analyzeBtn">Analyze Resume</button>
+                        <button class="btn download-btn" id="downloadBtn">Download as PDF</button>
+                    </div>
+                </div>
+                <div class="resume-preview" id="resumePreview"></div>
+            </section>
+        </main>
+    </div>
+    <script src="/js/resume.js"></script>
+</body>
+</html>
