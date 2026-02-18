@@ -3,7 +3,9 @@ import numpy as np
 import pandas as pd
 import pickle
 import os
+from datetime import datetime
 from career_engine import CareerEngine, process_career_recommendation
+from roadmap_data import get_roadmap
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 app.secret_key = 'your-secret-key-here-change-in-production'  # Required for sessions
@@ -136,7 +138,12 @@ def commit_path():
         chosen_path = request.form.get('chosen_path', 'primary')
         result = session.get('career_recommendation')
         
+        print(f"=== COMMIT PATH DEBUG ===")
+        print(f"Chosen path type: {chosen_path}")
+        print(f"Session has recommendation: {result is not None}")
+        
         if not result:
+            print("ERROR: No career recommendation in session")
             return redirect(url_for('career_guide'))
         
         # Get the chosen path details
@@ -145,11 +152,14 @@ def commit_path():
         else:
             path = result['secondary_path']
         
+        print(f"Path selected: {path['name']}")
+        print(f"Path key: {path['key']}")
+        
         # Store commitment
         session['active_career_path'] = {
             "path_key": path['key'],
             "path_name": path['name'],
-            "committed_date": result['timestamp'],
+            "committed_date": result.get('timestamp', datetime.now().isoformat()),
             "current_week": 1,
             "current_phase": "Foundation"
         }
@@ -157,33 +167,52 @@ def commit_path():
         # Generate roadmap for chosen path
         engine = CareerEngine()
         experience_level = session.get('experience_level', 'beginner')
-        constraints = result['roadmap']['time_commitment']
-        time_per_week = int(constraints.split()[0])
+        
+        # Extract time per week from constraints
+        time_per_week = 10  # Default
+        if 'roadmap' in result and 'time_commitment' in result['roadmap']:
+            time_str = result['roadmap']['time_commitment']
+            try:
+                time_per_week = int(time_str.split()[0])
+            except:
+                time_per_week = 10
+        
+        print(f"Generating roadmap with time_per_week: {time_per_week}")
         
         roadmap = engine.generate_roadmap(path['key'], experience_level, time_per_week)
         session['roadmap'] = roadmap
+        session.modified = True  # Force session save
         
-        return render_template('roadmap.html', 
-                             path=path, 
-                             roadmap=roadmap,
-                             commitment=session['active_career_path'])
+        print(f"Roadmap generated successfully")
+        print(f"Roadmap has {len(roadmap.get('phases', []))} phases")
+        
+        # Redirect to my-roadmap
+        return redirect(url_for('my_roadmap'))
         
     except Exception as e:
         error_message = f"Error committing to path: {str(e)}"
-        print(error_message)
-        return redirect(url_for('career_guide'))
+        print(f"ERROR: {error_message}")
+        import traceback
+        traceback.print_exc()
+        
+        # Return error page instead of redirecting
+        return render_template('career_recommendation.html', 
+                             error=f"Failed to generate roadmap: {str(e)}. Please try again.")
 
 @app.route('/my-roadmap')
 def my_roadmap():
     """View current roadmap"""
-    roadmap = session.get('roadmap')
     commitment = session.get('active_career_path')
     
-    if not roadmap or not commitment:
+    if not commitment:
         return redirect(url_for('career_guide'))
     
-    return render_template('roadmap.html', 
-                         roadmap=roadmap,
+    # Get visual roadmap data
+    path_key = commitment.get('path_key')
+    roadmap_data = get_roadmap(path_key)
+    
+    return render_template('roadmap_visual.html', 
+                         roadmap_data=roadmap_data,
                          commitment=commitment)
 
 @app.route('/predict', methods=['POST'])

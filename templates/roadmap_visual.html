@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ roadmap_data.name }} Roadmap - JobSensei</title>
+  <link rel="stylesheet" href="/css/homepage.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+  <style>
+    .roadmap-container {
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+
+    .roadmap-header {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .roadmap-header h1 {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .roadmap-header p {
+      font-size: 1.1rem;
+      color: var(--text-secondary);
+    }
+
+    /* Progress Stats */
+    .progress-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 0.75rem;
+      padding: 1.5rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 800;
+      color: var(--accent);
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    /* Roadmap Canvas */
+    .roadmap-canvas {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 3rem;
+      min-height: 800px;
+      position: relative;
+      overflow-x: auto;
+    }
+
+    .roadmap-svg {
+      width: 100%;
+      min-height: 2000px;
+    }
+
+    /* Node Styles */
+    .node {
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .node-rect {
+      fill: var(--bg-secondary);
+      stroke: var(--card-border);
+      stroke-width: 2;
+      rx: 8;
+      transition: all 0.3s ease;
+    }
+
+    .node:hover .node-rect {
+      stroke: var(--accent);
+      stroke-width: 3;
+    }
+
+    .node.completed .node-rect {
+      fill: rgba(16, 185, 129, 0.2);
+      stroke: #10b981;
+      stroke-width: 2;
+    }
+
+    .node.topic .node-rect {
+      fill: rgba(59, 130, 246, 0.1);
+      stroke: var(--accent);
+    }
+
+    .node.milestone .node-rect {
+      fill: rgba(251, 191, 36, 0.1);
+      stroke: #fbbf24;
+    }
+
+    .node.optional .node-rect {
+      stroke-dasharray: 5,5;
+    }
+
+    .node-text {
+      fill: var(--text-primary);
+      font-size: 14px;
+      font-weight: 600;
+      text-anchor: middle;
+      pointer-events: none;
+    }
+
+    .node-icon {
+      font-size: 16px;
+    }
+
+    /* Connection Lines */
+    .connection-line {
+      stroke: var(--card-border);
+      stroke-width: 2;
+      fill: none;
+      marker-end: url(#arrowhead);
+    }
+
+    .connection-line.completed {
+      stroke: #10b981;
+      stroke-width: 3;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      gap: 2rem;
+      justify-content: center;
+      margin-bottom: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .legend-box {
+      width: 30px;
+      height: 20px;
+      border-radius: 4px;
+      border: 2px solid;
+    }
+
+    .legend-box.topic {
+      background: rgba(59, 130, 246, 0.1);
+      border-color: var(--accent);
+    }
+
+    .legend-box.subtopic {
+      background: var(--bg-secondary);
+      border-color: var(--card-border);
+    }
+
+    .legend-box.optional {
+      background: var(--bg-secondary);
+      border-color: var(--card-border);
+      border-style: dashed;
+    }
+
+    .legend-box.milestone {
+      background: rgba(251, 191, 36, 0.1);
+      border-color: #fbbf24;
+    }
+
+    .legend-box.completed {
+      background: rgba(16, 185, 129, 0.2);
+      border-color: #10b981;
+    }
+
+    /* Node Details Modal */
+    .node-modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 1rem;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      z-index: 10000;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .node-modal.active {
+      display: block;
+    }
+
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.7);
+      z-index: 9999;
+    }
+
+    .modal-overlay.active {
+      display: block;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      color: var(--text-secondary);
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+
+    .modal-description {
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .modal-btn {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      border-radius: 0.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-btn.complete {
+      background: #10b981;
+      color: white;
+    }
+
+    .modal-btn.incomplete {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      border: 1px solid var(--card-border);
+    }
+
+    @media (max-width: 768px) {
+      .roadmap-canvas {
+        padding: 1rem;
+      }
+      
+      .legend {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <h2>JobSensei</h2>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="/pages/homepage.html"><i class="fas fa-home"></i> Home</a>
+      <a href="/pages/dashboard.html"><i class="fas fa-th-large"></i> Dashboard</a>
+      <a href="/pages/profile.html"><i class="fas fa-user"></i> My Profile</a>
+      <a href="/my-roadmap" class="active"><i class="fas fa-map-marked-alt"></i> My Roadmap</a>
+      <a href="/pages/jobboard.html"><i class="fas fa-briefcase"></i> Jobs</a>
+      <a href="/pages/resumeintro.html"><i class="fas fa-file-alt"></i> Resume Builder</a>
+      <a href="/pages/chatbot.html"><i class="fas fa-robot"></i> Ask Yuki Bot</a>
+      <a href="/pages/connect.html"><i class="fas fa-users"></i> Connect</a>
+    </nav>
+  </aside>
+
+  <main class="dashboard-main">
+    <div class="roadmap-container">
+      <!-- Header -->
+      <div class="roadmap-header">
+        <h1>🗺️ {{ roadmap_data.name }} Roadmap</h1>
+        <p>{{ roadmap_data.description }}</p>
+      </div>
+
+      <!-- Progress Stats -->
+      <div class="progress-stats">
+        <div class="stat-card">
+          <div class="stat-value" id="completedNodes">0</div>
+          <div class="stat-label">Topics Completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalNodes">{{ roadmap_data.nodes|length }}</div>
+          <div class="stat-label">Total Topics</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="progressPercent">0%</div>
+          <div class="stat-label">Progress</div>
+        </div>
+      </div>
+
+      <!-- Legend -->
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-box topic"></div>
+          <span>Main Topic</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box subtopic"></div>
+          <span>Subtopic</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box optional"></div>
+          <span>Optional</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box milestone"></div>
+          <span>Milestone</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-box completed"></div>
+          <span>Completed</span>
+        </div>
+      </div>
+
+      <!-- Roadmap Canvas -->
+      <div class="roadmap-canvas">
+        <svg class="roadmap-svg" id="roadmapSvg">
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto">
+              <polygon points="0 0, 10 3, 0 6" fill="var(--card-border)" />
+            </marker>
+          </defs>
+        </svg>
+      </div>
+    </div>
+  </main>
+
+  <!-- Node Details Modal -->
+  <div class="modal-overlay" id="modalOverlay"></div>
+  <div class="node-modal" id="nodeModal">
+    <div class="modal-header">
+      <h3 class="modal-title" id="modalTitle"></h3>
+      <button class="modal-close" id="modalClose">&times;</button>
+    </div>
+    <p class="modal-description" id="modalDescription"></p>
+    <div class="modal-actions">
+      <button class="modal-btn complete" id="markComplete">
+        <i class="fas fa-check"></i> Mark as Complete
+      </button>
+      <button class="modal-btn incomplete" id="markIncomplete" style="display: none;">
+        <i class="fas fa-times"></i> Mark as Incomplete
+      </button>
+    </div>
+  </div>
+
+  <script type="module">
+    import { firebaseConfig } from '/js/config.js';
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+    import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+    import { getFirestore, doc, getDoc, setDoc } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let currentUser = null;
+    let completedNodes = new Set();
+    
+    // Roadmap data from server
+    const roadmapData = {{ roadmap_data|tojson }};
+    
+    // Auth listener
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        currentUser = user;
+        loadProgress();
+      } else {
+        window.location.href = '/pages/login.html';
+      }
+    });
+
+    // Load progress
+    async function loadProgress() {
+      try {
+        const progressRef = doc(db, 'roadmapProgress', currentUser.uid);
+        const progressSnap = await getDoc(progressRef);
+        
+        if (progressSnap.exists()) {
+          const data = progressSnap.data();
+          completedNodes = new Set(data.completedNodes || []);
+        }
+        
+        renderRoadmap();
+        updateStats();
+      } catch (error) {
+        console.error('Error loading progress:', error);
+        renderRoadmap();
+      }
+    }
+
+    // Save progress
+    async function saveProgress() {
+      try {
+        const progressRef = doc(db, 'roadmapProgress', currentUser.uid);
+        await setDoc(progressRef, {
+          completedNodes: Array.from(completedNodes),
+          lastUpdated: new Date().toISOString()
+        }, { merge: true });
+      } catch (error) {
+        console.error('Error saving progress:', error);
+      }
+    }
+
+    // Render roadmap
+    function renderRoadmap() {
+      const svg = document.getElementById('roadmapSvg');
+      const nodes = roadmapData.nodes;
+      
+      // Draw connections first (so they appear behind nodes)
+      nodes.forEach(node => {
+        if (node.children && node.children.length > 0) {
+          node.children.forEach(childId => {
+            const childNode = nodes.find(n => n.id === childId);
+            if (childNode) {
+              drawConnection(svg, node, childNode);
+            }
+          });
+        }
+      });
+      
+      // Draw nodes
+      nodes.forEach(node => {
+        drawNode(svg, node);
+      });
+    }
+
+    // Draw connection line
+    function drawConnection(svg, fromNode, toNode) {
+      const scale = 8; // Scale factor for positioning
+      const x1 = fromNode.position.x * scale + 60;
+      const y1 = fromNode.position.y * scale + 40;
+      const x2 = toNode.position.x * scale + 60;
+      const y2 = toNode.position.y * scale;
+      
+      const line = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      const d = `M ${x1} ${y1} L ${x2} ${y2}`;
+      line.setAttribute('d', d);
+      line.setAttribute('class', 'connection-line');
+      
+      if (completedNodes.has(fromNode.id) && completedNodes.has(toNode.id)) {
+        line.classList.add('completed');
+      }
+      
+      svg.appendChild(line);
+    }
+
+    // Draw node
+    function drawNode(svg, node) {
+      const scale = 8;
+      const x = node.position.x * scale;
+      const y = node.position.y * scale;
+      const width = 120;
+      const height = 40;
+      
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('class', `node ${node.type}`);
+      g.setAttribute('data-node-id', node.id);
+      
+      if (completedNodes.has(node.id)) {
+        g.classList.add('completed');
+      }
+      
+      // Rectangle
+      const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+      rect.setAttribute('x', x);
+      rect.setAttribute('y', y);
+      rect.setAttribute('width', width);
+      rect.setAttribute('height', height);
+      rect.setAttribute('class', 'node-rect');
+      g.appendChild(rect);
+      
+      // Text
+      const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+      text.setAttribute('x', x + width / 2);
+      text.setAttribute('y', y + height / 2 + 5);
+      text.setAttribute('class', 'node-text');
+      text.textContent = node.title;
+      g.appendChild(text);
+      
+      // Click handler
+      g.style.cursor = 'pointer';
+      g.addEventListener('click', () => showNodeModal(node));
+      
+      svg.appendChild(g);
+    }
+
+    // Show node modal
+    function showNodeModal(node) {
+      document.getElementById('modalTitle').textContent = node.title;
+      document.getElementById('modalDescription').textContent = node.description;
+      
+      const isCompleted = completedNodes.has(node.id);
+      document.getElementById('markComplete').style.display = isCompleted ? 'none' : 'block';
+      document.getElementById('markIncomplete').style.display = isCompleted ? 'block' : 'none';
+      
+      document.getElementById('modalOverlay').classList.add('active');
+      document.getElementById('nodeModal').classList.add('active');
+      
+      // Store current node
+      window.currentNode = node;
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('modalOverlay').classList.remove('active');
+      document.getElementById('nodeModal').classList.remove('active');
+    }
+
+    document.getElementById('modalClose').addEventListener('click', closeModal);
+    document.getElementById('modalOverlay').addEventListener('click', closeModal);
+
+    // Mark complete
+    document.getElementById('markComplete').addEventListener('click', () => {
+      if (window.currentNode) {
+        completedNodes.add(window.currentNode.id);
+        saveProgress();
+        renderRoadmap();
+        updateStats();
+        closeModal();
+      }
+    });
+
+    // Mark incomplete
+    document.getElementById('markIncomplete').addEventListener('click', () => {
+      if (window.currentNode) {
+        completedNodes.delete(window.currentNode.id);
+        saveProgress();
+        renderRoadmap();
+        updateStats();
+        closeModal();
+      }
+    });
+
+    // Update stats
+    function updateStats() {
+      const total = roadmapData.nodes.length;
+      const completed = completedNodes.size;
+      const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+      
+      document.getElementById('completedNodes').textContent = completed;
+      document.getElementById('totalNodes').textContent = total;
+      document.getElementById('progressPercent').textContent = `${percent}%`;
+    }
+  </script>
+</body>
+</html>

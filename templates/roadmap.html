@@ -51,12 +51,62 @@
       color: var(--accent);
     }
 
-    .current-focus {
+    /* Progress Overview */
+    .progress-overview {
       background: linear-gradient(135deg, var(--accent) 0%, #8b5cf6 100%);
       border-radius: 1rem;
       padding: 2rem;
       margin-bottom: 2rem;
       color: white;
+    }
+
+    .progress-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1.5rem;
+    }
+
+    .stat-card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      border-radius: 0.75rem;
+      padding: 1.25rem;
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 2.5rem;
+      font-weight: 800;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .progress-bar-container {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 1rem;
+      height: 12px;
+      margin-top: 1rem;
+      overflow: hidden;
+    }
+
+    .progress-bar-fill {
+      background: white;
+      height: 100%;
+      border-radius: 1rem;
+      transition: width 0.5s ease;
+    }
+
+    .current-focus {
+      background: var(--card-bg);
+      border: 2px solid var(--accent);
+      border-radius: 1rem;
+      padding: 2rem;
+      margin-bottom: 2rem;
       text-align: center;
     }
 
@@ -64,11 +114,12 @@
       font-size: 1.5rem;
       font-weight: 800;
       margin-bottom: 0.5rem;
+      color: var(--text-primary);
     }
 
     .current-focus p {
       font-size: 1.1rem;
-      opacity: 0.9;
+      color: var(--text-secondary);
     }
 
     .phases-container {
@@ -88,10 +139,16 @@
     .phase-header {
       display: flex;
       align-items: center;
-      gap: 1rem;
+      justify-content: space-between;
       margin-bottom: 2rem;
       padding-bottom: 1rem;
       border-bottom: 2px solid var(--card-border);
+    }
+
+    .phase-title-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
     }
 
     .phase-number {
@@ -114,9 +171,15 @@
       color: var(--text-primary);
     }
 
+    .phase-progress {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
     .weeks-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 1.5rem;
     }
 
@@ -126,6 +189,12 @@
       border-radius: 0.75rem;
       padding: 1.5rem;
       transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .week-card.completed {
+      border-color: #10b981;
+      background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(16, 185, 129, 0.05) 100%);
     }
 
     .week-card:hover {
@@ -149,6 +218,20 @@
       letter-spacing: 0.5px;
     }
 
+    .week-completion-badge {
+      background: #10b981;
+      color: white;
+      padding: 0.25rem 0.75rem;
+      border-radius: 1rem;
+      font-size: 0.75rem;
+      font-weight: 700;
+      display: none;
+    }
+
+    .week-card.completed .week-completion-badge {
+      display: block;
+    }
+
     .week-goal {
       font-size: 1.1rem;
       font-weight: 700;
@@ -166,7 +249,7 @@
       color: var(--text-secondary);
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.75rem;
     }
 
     .week-section ul {
@@ -174,20 +257,68 @@
       padding: 0;
     }
 
-    .week-section li {
-      font-size: 0.9rem;
-      color: var(--text-secondary);
-      padding: 0.35rem 0;
+    .checklist-item {
       display: flex;
       align-items: flex-start;
-      gap: 0.5rem;
+      gap: 0.75rem;
+      padding: 0.5rem;
+      border-radius: 0.5rem;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      margin-bottom: 0.5rem;
     }
 
-    .week-section li::before {
-      content: "→";
-      color: var(--accent);
-      font-weight: 700;
+    .checklist-item:hover {
+      background: var(--card-bg);
+    }
+
+    .checklist-item.completed {
+      opacity: 0.7;
+    }
+
+    .checklist-item.completed .item-text {
+      text-decoration: line-through;
+      color: var(--text-secondary);
+    }
+
+    .checkbox-wrapper {
+      position: relative;
       flex-shrink: 0;
+      margin-top: 0.15rem;
+    }
+
+    .checkbox-input {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+      appearance: none;
+      border: 2px solid var(--card-border);
+      border-radius: 0.25rem;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+
+    .checkbox-input:checked {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+
+    .checkbox-input:checked::after {
+      content: "✓";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .item-text {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      flex: 1;
+      line-height: 1.5;
     }
 
     .action-buttons {
@@ -195,6 +326,7 @@
       gap: 1rem;
       margin-top: 2rem;
       justify-content: center;
+      flex-wrap: wrap;
     }
 
     .action-btn {
@@ -250,6 +382,10 @@
         width: 100%;
         justify-content: center;
       }
+
+      .progress-stats {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -294,6 +430,35 @@
       </div>
     </div>
 
+    <!-- Progress Overview -->
+    <div class="progress-overview">
+      <h2 style="font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem;">📊 Your Progress</h2>
+      <p style="opacity: 0.9; margin-bottom: 1rem;">Track your journey to becoming a professional</p>
+      
+      <div class="progress-stats">
+        <div class="stat-card">
+          <div class="stat-value" id="completedTasks">0</div>
+          <div class="stat-label">Tasks Completed</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="totalTasks">0</div>
+          <div class="stat-label">Total Tasks</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="completionPercentage">0%</div>
+          <div class="stat-label">Overall Progress</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="currentWeekNum">1</div>
+          <div class="stat-label">Current Week</div>
+        </div>
+      </div>
+
+      <div class="progress-bar-container">
+        <div class="progress-bar-fill" id="progressBarFill" style="width: 0%"></div>
+      </div>
+    </div>
+
     <!-- Current Focus -->
     <div class="current-focus">
       <h2>📍 Current Week Focus</h2>
@@ -303,16 +468,20 @@
     <!-- Phases -->
     <div class="phases-container">
       {% for phase in roadmap.phases %}
-      <div class="phase-card">
+      <div class="phase-card" data-phase-index="{{ loop.index0 }}">
         <div class="phase-header">
-          <div class="phase-number">{{ loop.index }}</div>
-          <h3 class="phase-title">{{ phase.name }}</h3>
+          <div class="phase-title-section">
+            <div class="phase-number">{{ loop.index }}</div>
+            <h3 class="phase-title">{{ phase.name }}</h3>
+          </div>
+          <div class="phase-progress" data-phase-progress="{{ loop.index0 }}">0/0 completed</div>
         </div>
         <div class="weeks-grid">
           {% for week in phase.weeks %}
-          <div class="week-card">
+          <div class="week-card" data-week="{{ week.week }}" data-phase="{{ loop.index0 }}">
             <div class="week-header">
               <span class="week-number">Week {{ week.week }}</span>
+              <span class="week-completion-badge">✓ Complete</span>
             </div>
             <h4 class="week-goal">{{ week.goal }}</h4>
             
@@ -321,7 +490,12 @@
               <h4>Skills to Learn</h4>
               <ul>
                 {% for skill in week.skills %}
-                <li>{{ skill }}</li>
+                <div class="checklist-item" data-type="skill" data-index="{{ loop.index0 }}">
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" class="checkbox-input" />
+                  </div>
+                  <span class="item-text">{{ skill }}</span>
+                </div>
                 {% endfor %}
               </ul>
             </div>
@@ -332,7 +506,12 @@
               <h4>Deliverables</h4>
               <ul>
                 {% for outcome in week.outcomes %}
-                <li>{{ outcome }}</li>
+                <div class="checklist-item" data-type="outcome" data-index="{{ loop.index0 }}">
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" class="checkbox-input" />
+                  </div>
+                  <span class="item-text">{{ outcome }}</span>
+                </div>
                 {% endfor %}
               </ul>
             </div>
@@ -343,7 +522,12 @@
               <h4>Resources</h4>
               <ul>
                 {% for resource in week.resources %}
-                <li>{{ resource }}</li>
+                <div class="checklist-item" data-type="resource" data-index="{{ loop.index0 }}">
+                  <div class="checkbox-wrapper">
+                    <input type="checkbox" class="checkbox-input" />
+                  </div>
+                  <span class="item-text">{{ resource }}</span>
+                </div>
                 {% endfor %}
               </ul>
             </div>
@@ -398,5 +582,7 @@
       <p>&copy; 2024 JobSensei. All rights reserved.</p>
     </div>
   </footer>
+
+  <script type="module" src="/js/roadmap.js"></script>
 </body>
 </html>
