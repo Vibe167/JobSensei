@@ -1,4 +1,6 @@
 // Chatbot functionality
+import { GEMINI_API_KEY } from './config.js';
+
 document.addEventListener("DOMContentLoaded", () => {
   const chatMessages = document.querySelector(".chat-messages");
   const chatInput = document.querySelector(".chat-input");
@@ -32,9 +34,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }, 500);
   });
 
-  // WARNING: Exposing API keys in frontend code is insecure.
-  const API_KEY = "AIzaSyBaZ5P70MsLntvVhXLyXrXLE-_huEOFdp0";
-  const API_url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+  // Gemini API configuration (imported from config.js)
+  const API_url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
 
   function smoothScrollToBottom() {
     chatMessages.scrollTo({

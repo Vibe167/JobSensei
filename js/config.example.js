@@ -14,6 +14,9 @@ export const firebaseConfig = {
 // YouTube API Key
 export const YOUTUBE_API_KEY = "YOUR_YOUTUBE_API_KEY";
 
+// Gemini API Key (for chatbot)
+export const GEMINI_API_KEY = "YOUR_GEMINI_API_KEY";
+
 // EmailJS Configuration
 export const EMAILJS_CONFIG = {
   publicKey: "YOUR_EMAILJS_PUBLIC_KEY",

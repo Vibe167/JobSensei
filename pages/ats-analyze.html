@@ -3,56 +3,369 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>ATS Resume Analyzer</title>
+    <title>ATS Resume Analyzer - JobSensei</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="/css/ats-analyze.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; line-height: 1.6; overflow-x: hidden; }
+      .sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background: #1e293b; border-right: 1px solid #334155; z-index: 1000; overflow-y: auto; }
+      .sidebar-header { padding: 1.5rem; border-bottom: 1px solid #334155; }
+      .sidebar-header h2 { color: #3b82f6; font-size: 1.4rem; font-weight: 700; }
+      .sidebar-nav { padding: 1rem 0; }
+      .nav-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1.5rem; color: #94a3b8; text-decoration: none; transition: all 0.3s ease; font-size: 0.9rem; }
+      .nav-item:hover { background: #334155; color: #3b82f6; }
+      .nav-item.active { background: #334155; color: #3b82f6; border-left: 3px solid #3b82f6; }
+      .nav-item i { font-size: 1.1rem; width: 20px; }
+      .main-content { margin-left: 260px; min-height: 100vh; padding: 2rem; }
+      .page-header { margin-bottom: 2rem; }
+      .header-content h1 { font-size: 2rem; color: #f1f5f9; margin-bottom: 0.5rem; }
+      .header-content p { color: #94a3b8; font-size: 0.95rem; }
+      .upload-section { display: grid; gap: 1.5rem; margin-bottom: 2rem; }
+      .upload-card { background: #1e293b; border: 2px dashed #334155; border-radius: 12px; padding: 2rem; text-align: center; transition: all 0.3s ease; }
+      .upload-card:hover { border-color: #3b82f6; }
+      .upload-icon { font-size: 3rem; color: #3b82f6; margin-bottom: 1rem; }
+      .upload-card h2 { font-size: 1.3rem; color: #f1f5f9; margin-bottom: 0.5rem; }
+      .upload-card p { color: #94a3b8; font-size: 0.9rem; margin-bottom: 1.5rem; }
+      .upload-btn { background: #3b82f6; color: white; border: none; padding: 0.75rem 2rem; border-radius: 8px; font-size: 1rem; font-weight: 500; cursor: pointer; transition: all 0.3s ease; display: inline-flex; align-items: center; gap: 0.5rem; }
+      .upload-btn:hover { background: #2563eb; transform: translateY(-2px); }
+      .file-name { display: block; margin-top: 1rem; color: #3b82f6; font-size: 0.9rem; }
+      .job-description-card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; }
+      .job-description-card h3 { font-size: 1.1rem; color: #f1f5f9; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }
+      .job-description-card h3 i { color: #3b82f6; }
+      .job-description-card p { color: #94a3b8; font-size: 0.85rem; margin-bottom: 1rem; }
+      .job-description-card textarea { width: 100%; background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 0.75rem; color: #e2e8f0; font-family: inherit; font-size: 0.9rem; resize: vertical; }
+      .job-description-card textarea:focus { outline: none; border-color: #3b82f6; }
+      .analyze-btn { width: 100%; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; border: none; padding: 1rem; border-radius: 8px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 0.5rem; }
+      .analyze-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(59, 130, 246, 0.3); }
+      .analyze-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+      .results-section { display: grid; gap: 2rem; margin-bottom: 2rem; }
+      .overall-score-card { background: linear-gradient(135deg, #1e293b 0%, #334155 100%); border: 1px solid #334155; border-radius: 12px; padding: 2rem; }
+      .score-content { text-align: center; }
+      .score-label { font-size: 1.1rem; color: #94a3b8; margin-bottom: 1.5rem; font-weight: 500; }
+      .score-circle { position: relative; display: inline-block; margin-bottom: 1rem; }
+      .score-ring { transform: rotate(-90deg); }
+      .score-ring-bg { fill: none; stroke: #334155; stroke-width: 12; }
+      .score-ring-progress { fill: none; stroke: #3b82f6; stroke-width: 12; stroke-linecap: round; stroke-dasharray: 440; stroke-dashoffset: 440; transition: stroke-dashoffset 1s ease; }
+      .score-value { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 2.5rem; font-weight: 700; color: #f1f5f9; }
+      .score-percent { font-size: 1.5rem; color: #94a3b8; }
+      .score-status { font-size: 1.1rem; font-weight: 500; margin-top: 1rem; }
+      .score-status.excellent { color: #10b981; }
+      .score-status.good { color: #3b82f6; }
+      .score-status.fair { color: #f59e0b; }
+      .score-status.poor { color: #ef4444; }
+      .breakdown-section { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; }
+      .breakdown-section h3 { font-size: 1.2rem; color: #f1f5f9; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+      .breakdown-section h3 i { color: #3b82f6; }
+      .breakdown-grid { display: grid; gap: 1.5rem; }
+      .breakdown-item { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 1rem; }
+      .breakdown-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+      .breakdown-label { font-size: 0.9rem; color: #94a3b8; display: flex; align-items: center; gap: 0.5rem; }
+      .breakdown-label i { color: #3b82f6; }
+      .breakdown-score { font-size: 1rem; font-weight: 600; color: #f1f5f9; }
+      .progress-bar { width: 100%; height: 8px; background: #334155; border-radius: 4px; overflow: hidden; }
+      .progress-fill { height: 100%; background: linear-gradient(90deg, #3b82f6 0%, #2563eb 100%); border-radius: 4px; transition: width 0.8s ease; width: 0; }
+      .feedback-section { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; }
+      .feedback-section h3 { font-size: 1.2rem; color: #f1f5f9; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+      .feedback-section h3 i { color: #3b82f6; }
+      .feedback-list { display: grid; gap: 1rem; }
+      .feedback-item { background: #0f172a; border-left: 3px solid; border-radius: 8px; padding: 1rem; display: flex; align-items: flex-start; gap: 0.75rem; }
+      .feedback-item.success { border-color: #10b981; }
+      .feedback-item.warning { border-color: #f59e0b; }
+      .feedback-item.error { border-color: #ef4444; }
+      .feedback-item i { font-size: 1.2rem; margin-top: 0.2rem; }
+      .feedback-item.success i { color: #10b981; }
+      .feedback-item.warning i { color: #f59e0b; }
+      .feedback-item.error i { color: #ef4444; }
+      .feedback-text { flex: 1; }
+      .feedback-text strong { display: block; color: #f1f5f9; margin-bottom: 0.25rem; font-size: 0.95rem; }
+      .feedback-text p { color: #94a3b8; font-size: 0.85rem; margin: 0; }
+      .keywords-section { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; }
+      .keywords-section h3 { font-size: 1.2rem; color: #f1f5f9; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+      .keywords-section h3 i { color: #3b82f6; }
+      .keywords-list { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+      .keyword-tag { background: #0f172a; border: 1px solid #3b82f6; color: #3b82f6; padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 500; }
+      .tips-section { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem; }
+      .tips-section h3 { font-size: 1.2rem; color: #f1f5f9; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem; }
+      .tips-section h3 i { color: #3b82f6; }
+      .tips-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; }
+      .tip-card { background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 1.25rem; transition: all 0.3s ease; }
+      .tip-card:hover { border-color: #3b82f6; transform: translateY(-2px); }
+      .tip-card i { font-size: 1.5rem; color: #10b981; margin-bottom: 0.75rem; }
+      .tip-card h4 { font-size: 1rem; color: #f1f5f9; margin-bottom: 0.5rem; }
+      .tip-card p { font-size: 0.85rem; color: #94a3b8; margin: 0; }
+      .footer { padding: 1.5rem 2rem; text-align: center; border-top: 1px solid #334155; color: #94a3b8; font-size: 0.85rem; }
+      @media (max-width: 768px) {
+        .sidebar { transform: translateX(-100%); }
+        .main-content { margin-left: 0; }
+        .tips-grid { grid-template-columns: 1fr; }
+      }
+    </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <h1>ATS Resume Analyzer</h1>
-        <p>
-          Upload your resume to get feedback and ATS (Applicant Tracking System)
-          score. Improve your chances of landing the job!
-        </p>
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>JobSensei</h2>
       </div>
+      <nav class="sidebar-nav">
+        <a href="/pages/dashboard.html" class="nav-item">
+          <i class="fas fa-home"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="/pages/profile.html" class="nav-item">
+          <i class="fas fa-user"></i>
+          <span>Profile</span>
+        </a>
+        <a href="/pages/resume.html" class="nav-item">
+          <i class="fas fa-file-alt"></i>
+          <span>Resume Builder</span>
+        </a>
+        <a href="/pages/ats-analyze.html" class="nav-item active">
+          <i class="fas fa-chart-line"></i>
+          <span>ATS Analyzer</span>
+        </a>
+        <a href="/pages/jobboard.html" class="nav-item">
+          <i class="fas fa-briefcase"></i>
+          <span>Job Board</span>
+        </a>
+        <a href="/pages/saved-courses.html" class="nav-item">
+          <i class="fas fa-bookmark"></i>
+          <span>Saved Courses</span>
+        </a>
+        <a href="/career-guide" class="nav-item">
+          <i class="fas fa-compass"></i>
+          <span>AI Career Guide</span>
+        </a>
+        <a href="/pages/chatbot.html" class="nav-item">
+          <i class="fas fa-comments"></i>
+          <span>Chat with Yuki</span>
+        </a>
+        <a href="/pages/connect.html" class="nav-item">
+          <i class="fas fa-users"></i>
+          <span>Connect</span>
+        </a>
+      </nav>
+    </aside>
 
-      <div class="upload-section">
-        <h2>Upload Your Resume</h2>
-        <input
-          type="file"
-          id="resumeFile"
-          accept="application/pdf"
-          title="Resume File"
-        />
-        <button id="analyzeBtn">Analyze Resume</button>
-      </div>
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Header -->
+      <header class="page-header">
+        <div class="header-content">
+          <div>
+            <h1>ATS Resume Analyzer</h1>
+            <p>Upload your resume and get instant ATS compatibility feedback</p>
+          </div>
+        </div>
+      </header>
 
-      <div id="atsResult" class="result">
-        <h3>ATS Score: <span id="atsScore">Not Available</span></h3>
-        <p id="feedback">Feedback: Not Available</p>
-      </div>
+      <!-- Upload Section -->
+      <section class="upload-section">
+        <div class="upload-card">
+          <div class="upload-icon">
+            <i class="fas fa-cloud-upload-alt"></i>
+          </div>
+          <h2>Upload Your Resume</h2>
+          <p>PDF format recommended for best results</p>
+          <input
+            type="file"
+            id="resumeFile"
+            accept="application/pdf"
+            style="display: none;"
+          />
+          <button id="uploadBtn" class="upload-btn">
+            <i class="fas fa-file-upload"></i>
+            Choose File
+          </button>
+          <span id="fileName" class="file-name"></span>
+        </div>
 
-      <div class="info">
-        <h2>How to Improve Your Resume for ATS</h2>
-        <ul>
-          <li>Use relevant keywords that match job descriptions.</li>
-          <li>Avoid using images, graphics, or complicated layouts.</li>
-          <li>
-            Use standard resume sections: Experience, Education, Skills, etc.
-          </li>
-          <li>
-            Make your resume machine-readable, with clear headings and simple
-            formatting.
-          </li>
-          <li>Optimize the document’s file type (PDF is most recommended).</li>
-        </ul>
-      </div>
-    </div>
+        <div class="job-description-card">
+          <h3><i class="fas fa-briefcase"></i> Job Description (Optional)</h3>
+          <p>Paste the job description to get keyword matching analysis</p>
+          <textarea
+            id="jobDescription"
+            placeholder="Paste job description here for better keyword matching..."
+            rows="6"
+          ></textarea>
+        </div>
+
+        <button id="analyzeBtn" class="analyze-btn" disabled>
+          <i class="fas fa-search"></i>
+          Analyze Resume
+        </button>
+      </section>
+
+      <!-- Results Section -->
+      <section id="resultsSection" class="results-section" style="display: none;">
+        <!-- Overall Score -->
+        <div class="overall-score-card">
+          <div class="score-content">
+            <div class="score-label">Overall ATS Score</div>
+            <div class="score-circle">
+              <svg class="score-ring" width="160" height="160">
+                <circle class="score-ring-bg" cx="80" cy="80" r="70" />
+                <circle id="scoreRingProgress" class="score-ring-progress" cx="80" cy="80" r="70" />
+              </svg>
+              <div class="score-value">
+                <span id="overallScore">0</span>
+                <span class="score-percent">%</span>
+              </div>
+            </div>
+            <div id="scoreStatus" class="score-status">Analyzing...</div>
+          </div>
+        </div>
+
+        <!-- Score Breakdown -->
+        <div class="breakdown-section">
+          <h3><i class="fas fa-chart-bar"></i> Score Breakdown</h3>
+          <div class="breakdown-grid">
+            <div class="breakdown-item">
+              <div class="breakdown-header">
+                <span class="breakdown-label">
+                  <i class="fas fa-key"></i> Keywords Match
+                </span>
+                <span id="keywordsScore" class="breakdown-score">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div id="keywordsProgress" class="progress-fill"></div>
+              </div>
+            </div>
+
+            <div class="breakdown-item">
+              <div class="breakdown-header">
+                <span class="breakdown-label">
+                  <i class="fas fa-list"></i> Section Structure
+                </span>
+                <span id="sectionsScore" class="breakdown-score">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div id="sectionsProgress" class="progress-fill"></div>
+              </div>
+            </div>
+
+            <div class="breakdown-item">
+              <div class="breakdown-header">
+                <span class="breakdown-label">
+                  <i class="fas fa-id-card"></i> Contact Info
+                </span>
+                <span id="contactScore" class="breakdown-score">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div id="contactProgress" class="progress-fill"></div>
+              </div>
+            </div>
+
+            <div class="breakdown-item">
+              <div class="breakdown-header">
+                <span class="breakdown-label">
+                  <i class="fas fa-file-alt"></i> Format Quality
+                </span>
+                <span id="formatScore" class="breakdown-score">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div id="formatProgress" class="progress-fill"></div>
+              </div>
+            </div>
+
+            <div class="breakdown-item">
+              <div class="breakdown-header">
+                <span class="breakdown-label">
+                  <i class="fas fa-chart-line"></i> Achievements
+                </span>
+                <span id="achievementsScore" class="breakdown-score">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div id="achievementsProgress" class="progress-fill"></div>
+              </div>
+            </div>
+
+            <div class="breakdown-item">
+              <div class="breakdown-header">
+                <span class="breakdown-label">
+                  <i class="fas fa-file-pdf"></i> Resume Length
+                </span>
+                <span id="lengthScore" class="breakdown-score">0%</span>
+              </div>
+              <div class="progress-bar">
+                <div id="lengthProgress" class="progress-fill"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Detailed Feedback -->
+        <div class="feedback-section">
+          <h3><i class="fas fa-lightbulb"></i> Detailed Feedback</h3>
+          <div id="feedbackList" class="feedback-list"></div>
+        </div>
+
+        <!-- Keywords Found -->
+        <div id="keywordsSection" class="keywords-section" style="display: none;">
+          <h3><i class="fas fa-tags"></i> Keywords Found</h3>
+          <div id="keywordsList" class="keywords-list"></div>
+        </div>
+
+        <!-- Extracted Text Preview (Debug) -->
+        <div id="extractedTextSection" class="keywords-section" style="display: none;">
+          <h3><i class="fas fa-file-alt"></i> Extracted Text Preview</h3>
+          <div style="background: #0f172a; border: 1px solid #334155; border-radius: 8px; padding: 1rem; max-height: 300px; overflow-y: auto;">
+            <pre id="extractedTextPreview" style="color: #94a3b8; font-size: 0.8rem; white-space: pre-wrap; word-wrap: break-word; margin: 0;"></pre>
+          </div>
+          <button id="toggleFullText" style="margin-top: 1rem; background: #334155; color: #e2e8f0; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">
+            Show Full Text
+          </button>
+        </div>
+      </section>
+
+      <!-- Tips Section -->
+      <section class="tips-section">
+        <h3><i class="fas fa-info-circle"></i> ATS Optimization Tips</h3>
+        <div class="tips-grid">
+          <div class="tip-card">
+            <i class="fas fa-check-circle"></i>
+            <h4>Use Standard Sections</h4>
+            <p>Include clear sections: Experience, Education, Skills, Contact</p>
+          </div>
+          <div class="tip-card">
+            <i class="fas fa-check-circle"></i>
+            <h4>Match Keywords</h4>
+            <p>Use keywords from the job description naturally in your resume</p>
+          </div>
+          <div class="tip-card">
+            <i class="fas fa-check-circle"></i>
+            <h4>Simple Formatting</h4>
+            <p>Avoid tables, images, headers/footers, and complex layouts</p>
+          </div>
+          <div class="tip-card">
+            <i class="fas fa-check-circle"></i>
+            <h4>Quantify Achievements</h4>
+            <p>Use numbers and metrics to demonstrate your impact</p>
+          </div>
+          <div class="tip-card">
+            <i class="fas fa-check-circle"></i>
+            <h4>Action Verbs</h4>
+            <p>Start bullet points with strong action verbs</p>
+          </div>
+          <div class="tip-card">
+            <i class="fas fa-check-circle"></i>
+            <h4>PDF Format</h4>
+            <p>Save as PDF to preserve formatting across systems</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Footer -->
+      <footer class="footer">
+        <p>&copy; 2024 JobSensei. All rights reserved.</p>
+      </footer>
+    </main>
 
     <script src="/js/ats-analyze.js"></script>
   </body>
