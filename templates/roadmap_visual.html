@@ -487,11 +487,38 @@
           completedNodes = new Set(pathProgress.completedNodes || []);
         }
         
+        // Initialize roadmap entry if it doesn't exist
+        await initializeRoadmap();
+        
         renderRoadmap();
         updateStats();
       } catch (error) {
         console.error('Error loading progress:', error);
         renderRoadmap();
+      }
+    }
+
+    // Initialize roadmap entry in Firebase
+    async function initializeRoadmap() {
+      try {
+        const progressRef = doc(db, 'roadmapProgress', currentUser.uid);
+        const progressSnap = await getDoc(progressRef);
+        
+        // Check if this path already exists
+        if (!progressSnap.exists() || !progressSnap.data()[currentPathKey]) {
+          console.log('Initializing roadmap for:', currentPathKey);
+          await setDoc(progressRef, {
+            [currentPathKey]: {
+              completedNodes: [],
+              lastUpdated: new Date().toISOString(),
+              pathName: roadmapData.name,
+              startedDate: new Date().toISOString()
+            }
+          }, { merge: true });
+          console.log('Roadmap initialized successfully');
+        }
+      } catch (error) {
+        console.error('Error initializing roadmap:', error);
       }
     }
 
