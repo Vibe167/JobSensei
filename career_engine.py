@@ -18,59 +18,42 @@ class CareerEngine:
     def _initialize_career_paths(self) -> Dict:
         """Define career path profiles with attribute vectors"""
         return {
-            "frontend_internship": {
-                "name": "Frontend Development Internship Track",
-                "attributes": {
-                    "logical_intensity": 0.7,
-                    "creativity": 0.8,
-                    "consistency": 0.6,
-                    "ambiguity_tolerance": 0.5,
-                    "self_learning": 0.7,
-                    "time_to_reward": 0.8  # Quick visual feedback
-                },
-                "requirements": {
-                    "min_time_per_week": 10,
-                    "internet_required": True,
-                    "financial_barrier": "low"
-                },
-                "outcomes": ["Internship", "Freelance Projects", "Portfolio"]
-            },
-            "backend_dsa": {
-                "name": "Backend + DSA Track",
+            "software_engineer_backend": {
+                "name": "Software Engineer (Backend/Systems)",
                 "attributes": {
                     "logical_intensity": 0.9,
                     "creativity": 0.5,
                     "consistency": 0.8,
                     "ambiguity_tolerance": 0.6,
                     "self_learning": 0.8,
-                    "time_to_reward": 0.5  # Delayed gratification
+                    "time_to_reward": 0.5
                 },
                 "requirements": {
                     "min_time_per_week": 15,
                     "internet_required": True,
                     "financial_barrier": "low"
                 },
-                "outcomes": ["SDE Role", "Competitive Programming", "System Design"]
+                "outcomes": ["Backend Developer", "Systems Engineer", "API Developer"]
             },
-            "data_analyst": {
-                "name": "Data Analyst Track",
+            "frontend_developer": {
+                "name": "Frontend Developer",
                 "attributes": {
-                    "logical_intensity": 0.8,
-                    "creativity": 0.6,
-                    "consistency": 0.7,
-                    "ambiguity_tolerance": 0.7,
+                    "logical_intensity": 0.7,
+                    "creativity": 0.8,
+                    "consistency": 0.6,
+                    "ambiguity_tolerance": 0.5,
                     "self_learning": 0.7,
-                    "time_to_reward": 0.7
+                    "time_to_reward": 0.8
                 },
                 "requirements": {
-                    "min_time_per_week": 12,
+                    "min_time_per_week": 10,
                     "internet_required": True,
                     "financial_barrier": "low"
                 },
-                "outcomes": ["Data Analyst Role", "Business Intelligence", "Analytics Projects"]
+                "outcomes": ["Frontend Developer", "UI Developer", "Web Developer"]
             },
-            "fullstack_web": {
-                "name": "Full Stack Web Development Track",
+            "fullstack_developer": {
+                "name": "Full Stack Developer",
                 "attributes": {
                     "logical_intensity": 0.8,
                     "creativity": 0.7,
@@ -86,8 +69,25 @@ class CareerEngine:
                 },
                 "outcomes": ["Full Stack Developer", "Startup Roles", "Freelancing"]
             },
-            "ui_ux_design": {
-                "name": "UI/UX Design Track",
+            "data_scientist": {
+                "name": "Data Scientist/Analyst",
+                "attributes": {
+                    "logical_intensity": 0.8,
+                    "creativity": 0.6,
+                    "consistency": 0.7,
+                    "ambiguity_tolerance": 0.7,
+                    "self_learning": 0.7,
+                    "time_to_reward": 0.7
+                },
+                "requirements": {
+                    "min_time_per_week": 12,
+                    "internet_required": True,
+                    "financial_barrier": "low"
+                },
+                "outcomes": ["Data Scientist", "Data Analyst", "Business Intelligence Analyst"]
+            },
+            "ui_ux_designer": {
+                "name": "UI/UX Designer",
                 "attributes": {
                     "logical_intensity": 0.5,
                     "creativity": 0.9,
@@ -103,8 +103,93 @@ class CareerEngine:
                 },
                 "outcomes": ["UI/UX Designer", "Product Design", "Design Internship"]
             },
+            "devops_engineer": {
+                "name": "DevOps/Cloud Engineer",
+                "attributes": {
+                    "logical_intensity": 0.8,
+                    "creativity": 0.5,
+                    "consistency": 0.8,
+                    "ambiguity_tolerance": 0.7,
+                    "self_learning": 0.8,
+                    "time_to_reward": 0.6
+                },
+                "requirements": {
+                    "min_time_per_week": 15,
+                    "internet_required": True,
+                    "financial_barrier": "low"
+                },
+                "outcomes": ["DevOps Engineer", "Cloud Engineer", "Site Reliability Engineer"]
+            },
+            "mobile_developer": {
+                "name": "Mobile App Developer",
+                "attributes": {
+                    "logical_intensity": 0.7,
+                    "creativity": 0.7,
+                    "consistency": 0.7,
+                    "ambiguity_tolerance": 0.6,
+                    "self_learning": 0.7,
+                    "time_to_reward": 0.7
+                },
+                "requirements": {
+                    "min_time_per_week": 12,
+                    "internet_required": True,
+                    "financial_barrier": "low"
+                },
+                "outcomes": ["Mobile App Developer", "iOS/Android Developer", "Cross-platform Developer"]
+            },
+            "ai_ml_engineer": {
+                "name": "AI/ML Engineer",
+                "attributes": {
+                    "logical_intensity": 0.9,
+                    "creativity": 0.6,
+                    "consistency": 0.8,
+                    "ambiguity_tolerance": 0.7,
+                    "self_learning": 0.9,
+                    "time_to_reward": 0.5
+                },
+                "requirements": {
+                    "min_time_per_week": 15,
+                    "internet_required": True,
+                    "financial_barrier": "low"
+                },
+                "outcomes": ["AI/ML Engineer", "Machine Learning Scientist", "AI Researcher"]
+            },
+            "cybersecurity": {
+                "name": "Cybersecurity Specialist",
+                "attributes": {
+                    "logical_intensity": 0.8,
+                    "creativity": 0.6,
+                    "consistency": 0.8,
+                    "ambiguity_tolerance": 0.7,
+                    "self_learning": 0.8,
+                    "time_to_reward": 0.6
+                },
+                "requirements": {
+                    "min_time_per_week": 15,
+                    "internet_required": True,
+                    "financial_barrier": "low"
+                },
+                "outcomes": ["Cybersecurity Analyst", "Security Engineer", "Penetration Tester"]
+            },
+            "product_manager": {
+                "name": "Product Manager",
+                "attributes": {
+                    "logical_intensity": 0.7,
+                    "creativity": 0.7,
+                    "consistency": 0.7,
+                    "ambiguity_tolerance": 0.8,
+                    "self_learning": 0.7,
+                    "time_to_reward": 0.7
+                },
+                "requirements": {
+                    "min_time_per_week": 12,
+                    "internet_required": True,
+                    "financial_barrier": "low"
+                },
+                "outcomes": ["Product Manager", "Technical Product Manager", "Product Owner"]
+            },
             "digital_marketing": {
-                "name": "Digital Marketing Track",
+                "name": "Digital Marketing Specialist",
                 "attributes": {
                     "logical_intensity": 0.6,
                     "creativity": 0.8,
@@ -119,6 +204,23 @@ class CareerEngine:
                     "financial_barrier": "low"
                 },
                 "outcomes": ["Marketing Specialist", "Content Strategy", "SEO/SEM Roles"]
+            },
+            "business_analyst": {
+                "name": "Business Analyst",
+                "attributes": {
+                    "logical_intensity": 0.7,
+                    "creativity": 0.6,
+                    "consistency": 0.7,
+                    "ambiguity_tolerance": 0.7,
+                    "self_learning": 0.7,
+                    "time_to_reward": 0.7
+                },
+                "requirements": {
+                    "min_time_per_week": 12,
+                    "internet_required": True,
+                    "financial_barrier": "low"
+                },
+                "outcomes": ["Business Analyst", "Systems Analyst", "Data Analyst"]
             }
         }
     
@@ -127,26 +229,26 @@ class CareerEngine:
         Convert MCQ responses into internal attribute scores
         
         Args:
-            mcq_responses: List of 20 integers (1-5 scale)
+            mcq_responses: List of 30 integers (1-5 scale)
             constraints: Dict with time_per_week, academic_year, financial, internet, device
         
         Returns:
             Dict with attribute scores (internal only, not shown to user)
         """
-        # Map questions to attributes (simplified mapping)
-        # Q1-4: Logical intensity
-        # Q5-8: Creativity
-        # Q9-12: Consistency
-        # Q13-15: Ambiguity tolerance
-        # Q16-18: Self-learning capability
-        # Q19-20: Time-to-reward preference
+        # Map questions to attributes (30 questions)
+        # Q1-5: Logical intensity (Analytical & Logical Thinking)
+        # Q6-10: Creativity (Creativity & Innovation)
+        # Q11-15: Consistency (Work Style & Persistence)
+        # Q16-20: Self-learning (Learning & Adaptability)
+        # Q21-25: Ambiguity tolerance (Social & Communication)
+        # Q26-30: Time-to-reward preference (Work Environment Preferences)
         
-        logical_intensity = sum(mcq_responses[0:4]) / 20.0  # Normalize to 0-1
-        creativity = sum(mcq_responses[4:8]) / 20.0
-        consistency = sum(mcq_responses[8:12]) / 20.0
-        ambiguity_tolerance = sum(mcq_responses[12:15]) / 15.0
-        self_learning = sum(mcq_responses[15:18]) / 15.0
-        time_to_reward = sum(mcq_responses[18:20]) / 10.0
+        logical_intensity = sum(mcq_responses[0:5]) / 25.0  # Normalize to 0-1
+        creativity = sum(mcq_responses[5:10]) / 25.0
+        consistency = sum(mcq_responses[10:15]) / 25.0
+        self_learning = sum(mcq_responses[15:20]) / 25.0
+        ambiguity_tolerance = sum(mcq_responses[20:25]) / 25.0
+        time_to_reward = sum(mcq_responses[25:30]) / 25.0
         
         profile = {
             "logical_intensity": round(logical_intensity, 2),
@@ -273,7 +375,7 @@ class CareerEngine:
     def _initialize_roadmap_templates(self) -> Dict:
         """Initialize 90-day roadmap templates for each career path"""
         return {
-            "frontend_internship": {
+            "frontend_developer": {
                 "phase1": {
                     "name": "Foundation (Weeks 1-4)",
                     "weeks": [
@@ -374,7 +476,7 @@ class CareerEngine:
                     ]
                 }
             },
-            "backend_dsa": {
+            "software_engineer_backend": {
                 "phase1": {
                     "name": "Foundation (Weeks 1-4)",
                     "weeks": [
@@ -474,8 +576,8 @@ class CareerEngine:
                         }
                     ]
                 }
-            }
-            # Add more templates for other paths...
+            },
+            # Remaining 10 careers use generic templates - all have detailed visual roadmaps in roadmap_data.py
         }
     
     def generate_roadmap(self, path_key: str, user_level: str, time_per_week: int) -> Dict:
@@ -586,7 +688,7 @@ def process_career_recommendation(mcq_responses: List[int], constraints: Dict,
     Main function to process career recommendation request
     
     Args:
-        mcq_responses: List of 20 MCQ responses (1-5)
+        mcq_responses: List of 30 MCQ responses (1-5)
         constraints: Dict with time_per_week, academic_year, financial, internet, device
         interest: "internship", "job", or "skill_building"
         experience_level: "beginner", "intermediate", "advanced"

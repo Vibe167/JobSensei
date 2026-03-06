@@ -297,12 +297,18 @@
     let currentUser = null;
 
     const careerPaths = {
-      'frontend_internship': 'Frontend Development',
-      'backend_dsa': 'Backend + DSA',
-      'data_analyst': 'Data Analyst',
-      'fullstack_web': 'Full Stack Web Development',
-      'ui_ux_design': 'UI/UX Design',
-      'digital_marketing': 'Digital Marketing'
+      'software_engineer_backend': 'Software Engineer (Backend/Systems)',
+      'frontend_developer': 'Frontend Developer',
+      'fullstack_developer': 'Full Stack Developer',
+      'data_scientist': 'Data Scientist/Analyst',
+      'ui_ux_designer': 'UI/UX Designer',
+      'devops_engineer': 'DevOps/Cloud Engineer',
+      'mobile_developer': 'Mobile App Developer',
+      'ai_ml_engineer': 'AI/ML Engineer',
+      'cybersecurity': 'Cybersecurity Specialist',
+      'product_manager': 'Product Manager',
+      'digital_marketing': 'Digital Marketing Specialist',
+      'business_analyst': 'Business Analyst'
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -350,12 +356,18 @@
 
         // Get total nodes for each path
         const pathNodeCounts = {
-          'frontend_internship': 31,
-          'backend_dsa': 24,
-          'data_analyst': 22,
-          'fullstack_web': 22,
-          'ui_ux_design': 23,
-          'digital_marketing': 24
+          'software_engineer_backend': 24,
+          'frontend_developer': 31,
+          'fullstack_developer': 22,
+          'data_scientist': 22,
+          'ui_ux_designer': 23,
+          'devops_engineer': 10,
+          'mobile_developer': 9,
+          'ai_ml_engineer': 9,
+          'cybersecurity': 9,
+          'product_manager': 9,
+          'digital_marketing': 24,
+          'business_analyst': 9
         };
 
         for (const pathKey of validPaths) {

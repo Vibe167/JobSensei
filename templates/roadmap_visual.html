@@ -146,9 +146,14 @@
     }
 
     .node.completed .node-rect {
-      fill: rgba(16, 185, 129, 0.2);
-      stroke: #10b981;
-      stroke-width: 2;
+      fill: rgba(16, 185, 129, 0.2) !important;
+      stroke: #10b981 !important;
+      stroke-width: 3 !important;
+    }
+    
+    .connection-line.completed {
+      stroke: #10b981 !important;
+      stroke-width: 2 !important;
     }
 
     .node.topic .node-rect {
@@ -354,7 +359,7 @@
       <a href="/my-roadmap" class="active"><i class="fas fa-map-marked-alt"></i> My Roadmap</a>
       <a href="/pages/jobboard.html"><i class="fas fa-briefcase"></i> Jobs</a>
       <a href="/pages/resumeintro.html"><i class="fas fa-file-alt"></i> Resume Builder</a>
-      <a href="/pages/chatbot.html"><i class="fas fa-robot"></i> Ask Yuki Bot</a>
+      <a href="https://udify.app/chat/ZNhesq4fV6pybTgW"><i class="fas fa-robot"></i> Ask Yuki Bot</a>
       <a href="/pages/connect.html"><i class="fas fa-users"></i> Connect</a>
     </nav>
   </aside>
@@ -610,12 +615,15 @@
       const width = 120;
       const height = 40;
       
+      const isCompleted = completedNodes.has(node.id);
+      
       const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
       g.setAttribute('class', `node ${node.type}`);
       g.setAttribute('data-node-id', node.id);
       
-      if (completedNodes.has(node.id)) {
+      if (isCompleted) {
         g.classList.add('completed');
+        console.log('Node marked as completed in render:', node.id);
       }
       
       // Rectangle
@@ -625,6 +633,14 @@
       rect.setAttribute('width', width);
       rect.setAttribute('height', height);
       rect.setAttribute('class', 'node-rect');
+      
+      // Apply completed styling directly
+      if (isCompleted) {
+        rect.setAttribute('fill', 'rgba(16, 185, 129, 0.2)');
+        rect.setAttribute('stroke', '#10b981');
+        rect.setAttribute('stroke-width', '3');
+      }
+      
       g.appendChild(rect);
       
       // Text
@@ -670,7 +686,9 @@
     // Mark complete
     document.getElementById('markComplete').addEventListener('click', () => {
       if (window.currentNode) {
+        console.log('Marking node as complete:', window.currentNode.id);
         completedNodes.add(window.currentNode.id);
+        console.log('Completed nodes:', Array.from(completedNodes));
         saveProgress();
         renderRoadmap();
         updateStats();
@@ -681,7 +699,9 @@
     // Mark incomplete
     document.getElementById('markIncomplete').addEventListener('click', () => {
       if (window.currentNode) {
+        console.log('Marking node as incomplete:', window.currentNode.id);
         completedNodes.delete(window.currentNode.id);
+        console.log('Completed nodes:', Array.from(completedNodes));
         saveProgress();
         renderRoadmap();
         updateStats();

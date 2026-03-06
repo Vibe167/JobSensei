@@ -4,3 +4,6 @@ torch
 Flask
 gunicorn
 pandas
+scikit-learn
+numpy
+joblib
