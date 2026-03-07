@@ -18,6 +18,7 @@ JobSensei is an **AI-powered career guidance platform** specifically designed fo
 
 ### 🚀 **Our Mission**
 To democratize career guidance and make quality upskilling resources accessible to everyone, regardless of their geographical location or economic background.
+Motto:Directing youth in the right direction.
 
 ---
 
