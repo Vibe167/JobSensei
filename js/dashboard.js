@@ -3,6 +3,12 @@ document.addEventListener("DOMContentLoaded", function () {
   const themeToggle = document.getElementById("theme-toggle");
   const html = document.documentElement;
 
+  // Check if theme toggle exists
+  if (!themeToggle) {
+    console.warn('Theme toggle button not found');
+    return;
+  }
+
   // Check for saved theme preference
   const savedTheme = localStorage.getItem("theme");
   if (savedTheme) {
@@ -23,6 +29,8 @@ document.addEventListener("DOMContentLoaded", function () {
   // Update theme icon based on current theme
   function updateThemeIcon(theme) {
     const icon = themeToggle.querySelector("i");
+    if (!icon) return;
+    
     if (theme === "dark") {
       icon.classList.remove("fa-moon");
       icon.classList.add("fa-sun");
@@ -148,6 +156,13 @@ onAuthStateChanged(auth, async (user) => {
         console.log("User Skills on Load:", userSkills);
         renderSkillChips(userSkills);
 
+        // Update saved courses count
+        const savedCourses = userData.savedCourses || [];
+        const savedCoursesCountElement = document.getElementById('saved-courses-count');
+        if (savedCoursesCountElement) {
+          savedCoursesCountElement.textContent = savedCourses.length;
+        }
+
         // Update progress bars with user data
         updateProgressBars(userData);
 
@@ -212,62 +227,93 @@ document.getElementById("logoutBtn").addEventListener("click", () => {
 async function fetchYouTubeRecommendations(skills) {
   const allRecommendations = {
     Playlists: [],
-    Videos: [],
+    Videos: []
   };
 
   const container = document.getElementById("recommendations-card");
-  container.innerHTML = `<h3>YouTube Recommendations</h3><p>Loading...</p>`;
+  container.innerHTML = `<h3>🎓 Top Picks for You</h3><p>Loading recommendations...</p>`;
+
+  // Check if YouTube API key is configured
+  if (!apiKey || apiKey === "") {
+    container.innerHTML = `
+      <h3>YouTube Recommendations</h3>
+      <div style="padding: 2rem; text-align: center;">
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+          <i class="fas fa-key" style="font-size: 2rem; margin-bottom: 0.5rem;"></i><br>
+          YouTube API key not configured
+        </p>
+        <p style="color: var(--text-secondary); font-size: 0.9rem;">
+          Add your YouTube API key to <code>js/config.js</code> to see personalized course recommendations.
+        </p>
+      </div>
+    `;
+    return;
+  }
 
   try {
-    for (const skill of skills) {
+    // Fetch YouTube recommendations - top 2 per skill
+    for (const skill of skills.slice(0, 2)) {
       let foundPlaylist = false;
 
+      // Search for playlists first (ordered by relevance)
       const playlistRes = await fetch(
         `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(
-          skill + " playlist"
-        )}&maxResults=2&type=playlist&key=${apiKey}`
+          skill + " tutorial playlist"
+        )}&maxResults=2&type=playlist&order=relevance&key=${apiKey}`
       );
       const playlistData = await playlistRes.json();
-      console.log("Playlist API Response for", skill, playlistData);
 
       if (playlistData.items?.length) {
-        allRecommendations.Playlists.push(...playlistData.items);
+        allRecommendations.Playlists.push(...playlistData.items.slice(0, 2));
         foundPlaylist = true;
       }
 
+      // If no playlists found, search for videos
       if (!foundPlaylist) {
         const videoRes = await fetch(
           `https://www.googleapis.com/youtube/v3/search?part=snippet&q=${encodeURIComponent(
             skill + " tutorial"
-          )}&maxResults=2&type=video&key=${apiKey}`
+          )}&maxResults=2&type=video&order=relevance&videoDuration=medium&key=${apiKey}`
         );
         const videoData = await videoRes.json();
-        console.log("Video API Response for", skill, videoData);
 
         if (videoData.items?.length) {
-          allRecommendations.Videos.push(...videoData.items);
+          allRecommendations.Videos.push(...videoData.items.slice(0, 2));
         }
       }
     }
 
-    container.innerHTML = `<h3>YouTube Recommendations</h3><div id="recommendation-wrapper"></div>`;
+    container.innerHTML = `<h3>🎓 Top Picks for You</h3><div id="recommendation-wrapper"></div>`;
 
+    // Show YouTube playlists
     if (allRecommendations.Playlists.length > 0) {
-      renderRecommendations("Playlists", allRecommendations.Playlists);
+      renderRecommendations("📚 Best YouTube Playlists", allRecommendations.Playlists.slice(0, 2));
     }
+    
+    // Show YouTube videos
     if (allRecommendations.Videos.length > 0) {
-      renderRecommendations("Videos", allRecommendations.Videos);
+      renderRecommendations("🎥 Best YouTube Videos", allRecommendations.Videos.slice(0, 2));
     }
+    
     if (
       allRecommendations.Playlists.length === 0 &&
       allRecommendations.Videos.length === 0
     ) {
       container.innerHTML +=
-        "<p>No YouTube results found. Try adding more common skills.</p>";
+        "<p>No results found. Try adding more common skills like JavaScript, Python, or React.</p>";
     }
   } catch (error) {
-    console.error("Error fetching YouTube data:", error);
-    container.innerHTML += "<p>Could not load recommendations.</p>";
+    console.error("Error fetching YouTube recommendations:", error);
+    
+    container.innerHTML = `
+      <h3>🎓 Course Recommendations</h3>
+      <div style="padding: 1rem;">
+        <p style="color: var(--text-secondary); margin-bottom: 1rem;">
+          <i class="fas fa-exclamation-circle"></i> 
+          Unable to load recommendations. Please check your internet connection and API key.
+        </p>
+      </div>
+    `;
   }
 }
 
@@ -281,12 +327,8 @@ function renderRecommendations(type, items) {
   const itemWrapper = document.createElement("div");
   itemWrapper.classList.add("item-wrapper");
 
-  let topItemIndex = 0;
-
-  // Optional: Sort by title length (as a basic "weight") or choose first one
-  // Later: Replace with actual metrics if fetched
-  // Here, we just pick the first as a placeholder for best
-  items.forEach((item, index) => {
+  // Only show top 2 items - no "Show More" button needed
+  items.slice(0, 2).forEach((item, index) => {
     const id = item.id.videoId || item.id.playlistId;
     const kind = item.id.kind;
     const url = kind.includes("playlist")
@@ -299,8 +341,7 @@ function renderRecommendations(type, items) {
 
     const el = document.createElement("div");
     el.classList.add("recommendation-item");
-    if (index === topItemIndex) el.classList.add("best-pick");
-    if (index >= 2) el.classList.add("hidden-item");
+    if (index === 0) el.classList.add("best-pick"); // Mark first as best pick
 
     el.innerHTML = `
       <a href="${url}" target="_blank" rel="noopener noreferrer">
@@ -312,23 +353,6 @@ function renderRecommendations(type, items) {
   });
 
   section.appendChild(itemWrapper);
-
-  if (items.length > 2) {
-    const toggleBtn = document.createElement("button");
-    toggleBtn.textContent = "Show More";
-    toggleBtn.classList.add("toggle-button");
-
-    toggleBtn.addEventListener("click", () => {
-      section.querySelectorAll(".hidden-item").forEach((item) => {
-        item.classList.toggle("show");
-      });
-      toggleBtn.textContent =
-        toggleBtn.textContent === "Show More" ? "Show Less" : "Show More";
-    });
-
-    section.appendChild(toggleBtn);
-  }
-
   container.appendChild(section);
 }
 
@@ -475,16 +499,17 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Event Listeners
-  chatIcon.addEventListener("click", toggleChat);
-  closeChat.addEventListener("click", toggleChat);
+  if (chatIcon) chatIcon.addEventListener("click", toggleChat);
+  if (closeChat) closeChat.addEventListener("click", toggleChat);
+  if (sendMessage) sendMessage.addEventListener("click", handleSendMessage);
 
-  sendMessage.addEventListener("click", handleSendMessage);
-
-  userMessage.addEventListener("keypress", (e) => {
-    if (e.key === "Enter") {
-      handleSendMessage();
-    }
-  });
+  if (userMessage) {
+    userMessage.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        handleSendMessage();
+      }
+    });
+  }
 });
 
 // Add this to your existing dashboard.js file, right after your existing functions
@@ -534,7 +559,11 @@ function addSaveButtonsToRecommendations() {
     saveBtn.dataset.url = url;
     
     // Add event listener
-    saveBtn.addEventListener('click', saveCourse);
+    saveBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      saveCourse(e);
+    });
     
     // Add the button to the item
     item.appendChild(saveBtn);
@@ -591,6 +620,15 @@ async function saveCourse(event) {
       
       // Update the user document with the new saved courses array
       await setDoc(userCoursesRef, { savedCourses: savedCourses }, { merge: true });
+      
+      // Update the saved courses count in the dashboard
+      const savedCoursesCountElement = document.getElementById('saved-courses-count');
+      if (savedCoursesCountElement) {
+        savedCoursesCountElement.textContent = savedCourses.length;
+      }
+      
+      // Update progress bars
+      updateProgressBars();
     } else {
       // User document doesn't exist yet, create it with the saved course
       await setDoc(userCoursesRef, { 
@@ -599,6 +637,15 @@ async function saveCourse(event) {
       button.classList.add('saved');
       button.innerHTML = '<i class="fas fa-check"></i> Saved';
       alert("Course saved successfully!");
+      
+      // Update the saved courses count
+      const savedCoursesCountElement = document.getElementById('saved-courses-count');
+      if (savedCoursesCountElement) {
+        savedCoursesCountElement.textContent = 1;
+      }
+      
+      // Update progress bars
+      updateProgressBars();
     }
   } catch (error) {
     console.error("Error saving course:", error);
@@ -648,10 +695,13 @@ renderRecommendations = function(type, items) {
 };
 
 // Add this at the end of your dashboard.js file
-document.getElementById("savejob").addEventListener("click", () => {
-  // Create temporary saved courses page if it doesn't exist yet
-  showSavedCourses();
-});
+const savejobBtn = document.getElementById("savejob");
+if (savejobBtn) {
+  savejobBtn.addEventListener("click", () => {
+    // Create temporary saved courses page if it doesn't exist yet
+    showSavedCourses();
+  });
+}
 
 // Function to show saved courses in a modal/popup if the page doesn't exist yet
 function showSavedCourses() {

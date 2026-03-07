@@ -1,0 +1,6 @@
+//Then Run All 3 In Order
+python combine_datasets.py
+//Wait until it says total_samples: 1200 then:
+python train_model.py
+Wait until you see the metrics table then:
+python -m uvicorn fastapi_server:app --reload --port 8000

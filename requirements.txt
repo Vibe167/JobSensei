@@ -7,3 +7,6 @@ pandas
 scikit-learn
 numpy
 joblib
+python-dotenv
+requests
+xgboost

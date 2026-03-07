@@ -117,6 +117,9 @@ function renderSavedCourses(courses, container) {
   // Sort courses by saved date (newest first)
   courses.sort((a, b) => new Date(b.savedAt) - new Date(a.savedAt));
   
+  // Update stats
+  updateStats(courses);
+  
   courses.forEach(course => {
     const courseType = course.kind.includes("playlist") ? "Playlist" : "Video";
     const savedDate = new Date(course.savedAt).toLocaleDateString();
@@ -155,8 +158,36 @@ function renderSavedCourses(courses, container) {
   });
 }
 
+// Update stats boxes
+function updateStats(courses) {
+  const totalCourses = courses.length;
+  const playlists = courses.filter(c => c.kind && c.kind.includes("playlist")).length;
+  const videos = courses.filter(c => c.kind && c.kind.includes("video")).length;
+  
+  // Update total courses
+  const totalCoursesElement = document.getElementById("total-courses");
+  if (totalCoursesElement) {
+    totalCoursesElement.textContent = totalCourses;
+  }
+  
+  // Update playlists count
+  const totalPlaylistsElement = document.getElementById("total-playlists");
+  if (totalPlaylistsElement) {
+    totalPlaylistsElement.textContent = playlists;
+  }
+  
+  // Update videos count
+  const totalVideosElement = document.getElementById("total-videos");
+  if (totalVideosElement) {
+    totalVideosElement.textContent = videos;
+  }
+}
+
 // Show empty state when no courses are saved
 function showEmptyState(container) {
+  // Update stats to zero
+  updateStats([]);
+  
   container.innerHTML = `
     <div class="empty-state">
       <i class="fas fa-bookmark"></i>

@@ -1,0 +1,54 @@
+{
+  "model": "XGBoost Classifier",
+  "dataset": "O*NET v28.2 + BLS OEWS 2024",
+  "text_model": "SBERT all-MiniLM-L6-v2",
+  "overall_metrics": {
+    "accuracy": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0
+  },
+  "cross_validation": {
+    "strategy": "5-fold Stratified",
+    "mean": 0.9894,
+    "std": 0.0075
+  },
+  "features": {
+    "mcq_dims": 22,
+    "text_dims": 384,
+    "total": 406,
+    "note": "MCQ used for training. SBERT(384-dim) used at prediction time on real user text."
+  },
+  "data_info": {
+    "total_samples": 1200,
+    "train_samples": 960,
+    "test_samples": 240,
+    "num_careers": 24,
+    "careers": [
+      "AI/ML Engineer",
+      "Architect",
+      "Biotechnologist",
+      "Business Consultant",
+      "Civil Engineer",
+      "Content Creator",
+      "Cybersecurity Analyst",
+      "Data Scientist",
+      "Doctor",
+      "Educator",
+      "Entrepreneur",
+      "Environmental Scientist",
+      "Financial Analyst",
+      "Graphic Designer",
+      "HR Manager",
+      "Lawyer",
+      "Marketing Manager",
+      "Mechanical Engineer",
+      "Product Manager",
+      "Psychologist",
+      "Research Scientist",
+      "Software Engineer",
+      "Supply Chain Manager",
+      "UX Designer"
+    ]
+  }
+}

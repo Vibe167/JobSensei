@@ -3,21 +3,49 @@ import numpy as np
 import pandas as pd
 import pickle
 import os
+import requests
 from datetime import datetime
+from dotenv import load_dotenv
 
-# ML-Based Career Engine (with fallback to rule-based)
-try:
-    from career_engine_ml import HybridCareerEngine, MLCareerEngine
-    ml_engine = HybridCareerEngine()
-    use_ml = True
-    print("✅ Using ML-based career recommendations")
-except Exception as e:
-    print(f"⚠️  ML engine not available: {e}")
-    from career_engine import CareerEngine, process_career_recommendation
-    use_ml = False
-    print("⚠️  Falling back to rule-based system")
+# Load environment variables
+load_dotenv()
 
-from roadmap_data import get_roadmap
+# Import ML API Client for new XGBoost + SBERT model
+from ml_api_client import get_ml_client
+
+# Initialize ML client
+ml_client = get_ml_client()
+
+# Check if new ML model is available
+if ml_client.is_available:
+    print("✅ Using NEW ML model (XGBoost + SBERT all-MiniLM-L6-v2) via FastAPI")
+    print("   Model running at: http://localhost:8000")
+    model_info = ml_client.get_model_info()
+    if model_info:
+        print(f"   F1 Score: {model_info['performance']['f1_score']}")
+        print(f"   Precision: {model_info['performance']['precision']}")
+        print(f"   Recall: {model_info['performance']['recall']}")
+    use_new_ml = True
+else:
+    print("⚠️  NEW ML model not available. Start it with:")
+    print("   cd 'ML Model/ML Model' && python -m uvicorn fastapi_server:app --reload --port 8000")
+    use_new_ml = False
+    
+    # Fallback to old systems
+    try:
+        from career_engine_ml import HybridCareerEngine, MLCareerEngine
+        ml_engine = HybridCareerEngine()
+        use_ml = True
+        print("✅ Using old ML-based career recommendations (fallback)")
+    except Exception as e:
+        print(f"⚠️  Old ML engine not available: {e}")
+        from career_engine import CareerEngine, process_career_recommendation
+        use_ml = False
+        print("⚠️  Falling back to rule-based system")
+
+# Import comprehensive roadmaps for all 24 ML careers
+from comprehensive_roadmaps import get_roadmap
+from course_api import get_course_recommendations
 
 app = Flask(__name__, static_folder='.', static_url_path='')
 app.secret_key = 'your-secret-key-here-change-in-production'  # Required for sessions
@@ -106,10 +134,34 @@ def career_guide():
 
 @app.route('/process-career-guide', methods=['POST'])
 def process_career_guide():
-    """Process career guide form and generate recommendations"""
+    """Process career guide form and generate recommendations using NEW ML model"""
     try:
-        # Get MCQ responses (30 questions now)
-        mcq_responses = [int(request.form.get(f'Q{i+1}', 3)) for i in range(30)]
+        # Prepare quiz data for ML API
+        quiz_data = {}
+        
+        # Numeric questions (Q1-Q10) - 1-5 scale
+        for i in range(1, 11):
+            quiz_data[f'Q{i}'] = float(request.form.get(f'Q{i}', 3))
+        
+        # Categorical questions (Q11-Q22)
+        quiz_data['Q11_work_env'] = request.form.get('work_env', 'Flexible')
+        quiz_data['Q12_team_size'] = request.form.get('team_size', 'Small (2-5)')
+        quiz_data['Q13_risk'] = request.form.get('risk', 'Medium')
+        quiz_data['Q14_pace'] = request.form.get('pace', 'Moderate')
+        quiz_data['Q15_values'] = request.form.get('values', 'Making impact')
+        quiz_data['Q16_prefers'] = request.form.get('prefers', 'Mix of all')
+        quiz_data['Q17_balance'] = request.form.get('balance', 'Very')
+        quiz_data['Q18_education'] = request.form.get('education', 'Bachelors')
+        quiz_data['Q19_subjects'] = request.form.get('subjects', 'Mixed')
+        quiz_data['Q20_coding'] = request.form.get('coding', 'Basic')
+        quiz_data['Q21_indoor'] = request.form.get('indoor', 'Mostly indoor')
+        quiz_data['Q22_age'] = request.form.get('age', '23-27')
+        
+        # Text questions (Q23-Q26) - for SBERT embeddings
+        quiz_data['Q23_problem_text'] = request.form.get('problem_text', '')
+        quiz_data['Q24_dream_text'] = request.form.get('dream_text', '')
+        quiz_data['Q25_skill_text'] = request.form.get('skill_text', '')
+        quiz_data['Q26_achievements'] = request.form.get('achievements_text', '')  # NEW: Achievements field
         
         # Get constraints
         constraints = {
@@ -117,41 +169,109 @@ def process_career_guide():
             "academic_year": request.form.get('academic_year', 'year2'),
             "financial": request.form.get('financial', 'medium'),
             "internet": request.form.get('internet', 'yes') == 'yes',
-            "device": request.form.get('device', 'laptop')
+            "device": request.form.get('device', 'laptop'),
+            "interest": request.form.get('interest', 'internship'),
+            "experience_level": request.form.get('experience_level', 'beginner')
         }
         
-        # Get interest and experience
-        interest = request.form.get('interest', 'internship')
-        experience_level = request.form.get('experience_level', 'beginner')
+        # Use NEW ML model if available
+        if use_new_ml and ml_client.is_available:
+            ml_result = ml_client.predict_career(quiz_data)
+            
+            if ml_result and ml_result.get('success'):
+                top_careers = ml_result['top5_careers']
+                
+                # Format for template
+                result = {
+                    'primary_path': {
+                        'name': top_careers[0]['career'],
+                        'key': top_careers[0]['career'].lower().replace(' ', '_').replace('/', '_'),
+                        'score': top_careers[0]['ml_confidence'],
+                        'rationale': f"ML Confidence: {top_careers[0]['ml_confidence']}%. "
+                                   f"Readiness Score: {top_careers[0]['readiness_score']}%. "
+                                   f"Based on {top_careers[0]['data_source']}.",
+                        'outcomes': top_careers[0]['skills_required'][:3],
+                        'method': 'XGBoost + SBERT (all-MiniLM-L6-v2)',
+                        'skills_gap': top_careers[0]['skills_gap'],
+                        'skills_you_have': top_careers[0]['skills_you_have'],
+                        'skills_required': top_careers[0]['skills_required'],
+                        'readiness_score': top_careers[0]['readiness_score'],
+                        'model_metrics': top_careers[0]['model_metrics']
+                    },
+                    'secondary_path': {
+                        'name': top_careers[1]['career'],
+                        'key': top_careers[1]['career'].lower().replace(' ', '_').replace('/', '_'),
+                        'score': top_careers[1]['ml_confidence'],
+                        'rationale': f"ML Confidence: {top_careers[1]['ml_confidence']}%. "
+                                   f"Readiness Score: {top_careers[1]['readiness_score']}%. "
+                                   f"Alternative career path with strong alignment.",
+                        'outcomes': top_careers[1]['skills_required'][:3],
+                        'method': 'XGBoost + SBERT (all-MiniLM-L6-v2)',
+                        'skills_gap': top_careers[1]['skills_gap'],
+                        'skills_you_have': top_careers[1]['skills_you_have'],
+                        'skills_required': top_careers[1]['skills_required'],
+                        'readiness_score': top_careers[1]['readiness_score'],
+                        'model_metrics': top_careers[1]['model_metrics']
+                    },
+                    'all_predictions': top_careers,
+                    'model_info': ml_result['model_info'],
+                    'constraints': constraints,
+                    'using_new_ml': True
+                }
+                
+                # Store in session for roadmap generation
+                session['career_recommendation'] = result
+                session['constraints'] = constraints
+                
+                return render_template('career_recommendation.html', result=result)
+            else:
+                # ML API failed, fall back
+                print("⚠️  ML API prediction failed, using fallback")
         
-        # Process recommendation using ML or rule-based
-        if use_ml:
-            result = ml_engine.recommend(
-                mcq_responses,
-                constraints,
-                interest,
-                experience_level
-            )
-        else:
-            result = process_career_recommendation(
-                mcq_responses,
-                constraints,
-                interest,
-                experience_level
-            )
+        # Fallback to old system if new ML not available or failed
+        print("⚠️  Using fallback system")
+        try:
+            if 'ml_engine' in globals() and ml_engine:
+                # Use old ML system
+                result = ml_engine.recommend_career(quiz_data, constraints)
+            else:
+                # Use rule-based system
+                from career_engine import process_career_recommendation
+                result = process_career_recommendation(quiz_data, constraints)
+        except Exception as fallback_error:
+            print(f"❌ Fallback system also failed: {fallback_error}")
+            # Last resort: create a basic result
+            result = {
+                'primary_path': {
+                    'name': 'Software Engineer',
+                    'key': 'software_engineer',
+                    'score': 75,
+                    'rationale': 'Based on your responses, software engineering is a good fit.',
+                    'outcomes': ['Programming', 'Problem Solving', 'System Design']
+                },
+                'secondary_path': {
+                    'name': 'Data Scientist',
+                    'key': 'data_scientist',
+                    'score': 70,
+                    'rationale': 'Alternative path with strong analytical focus.',
+                    'outcomes': ['Data Analysis', 'Statistics', 'Machine Learning']
+                },
+                'constraints': constraints
+            }
         
-        # Store in session for commitment page
+        result['using_new_ml'] = False
         session['career_recommendation'] = result
-        session['experience_level'] = experience_level
+        session['constraints'] = constraints
         
         return render_template('career_recommendation.html', result=result)
         
     except Exception as e:
-        error_message = f"Error processing career guide: {str(e)}"
-        print(error_message)
+        print(f"❌ Error in process_career_guide: {e}")
         import traceback
         traceback.print_exc()
-        return render_template('career_recommendation.html', error=error_message)
+        
+        # Return to career guide with error message instead of rendering non-existent error.html
+        return render_template('career_guide.html', error=f"Error generating recommendations: {str(e)}. Please try again."), 500
 
 @app.route('/commit-path', methods=['POST'])
 def commit_path():
@@ -185,32 +305,16 @@ def commit_path():
             "current_week": 1,
             "current_phase": "Foundation"
         }
+        session.modified = True
         
-        # Generate roadmap for chosen path
-        from career_engine import CareerEngine
-        engine = CareerEngine()
-        experience_level = session.get('experience_level', 'beginner')
+        print(f"Commitment stored successfully")
         
-        # Extract time per week from constraints
-        time_per_week = 10  # Default
-        if 'roadmap' in result and 'time_commitment' in result['roadmap']:
-            time_str = result['roadmap']['time_commitment']
-            try:
-                time_per_week = int(time_str.split()[0])
-            except:
-                time_per_week = 10
+        # Note: The roadmap will be initialized in Firebase when the user views it
+        # The roadmap_visual.html JavaScript will call initializeRoadmap() automatically
+        print(f"Redirecting to roadmap view - Firebase initialization will happen on page load")
         
-        print(f"Generating roadmap with time_per_week: {time_per_week}")
-        
-        roadmap = engine.generate_roadmap(path['key'], experience_level, time_per_week)
-        session['roadmap'] = roadmap
-        session.modified = True  # Force session save
-        
-        print(f"Roadmap generated successfully")
-        print(f"Roadmap has {len(roadmap.get('phases', []))} phases")
-        
-        # Redirect to my-roadmap
-        return redirect(url_for('my_roadmap'))
+        # Redirect to roadmap view
+        return redirect(url_for('view_roadmap', path_key=path['key']))
         
     except Exception as e:
         error_message = f"Error committing to path: {str(e)}"
@@ -241,17 +345,31 @@ def my_roadmaps():
 @app.route('/system-info')
 def system_info():
     """Check which recommendation system is active"""
-    if use_ml:
+    if use_new_ml:
+        model_info = ml_predictor.get_model_info()
+        return jsonify({
+            "status": "NEW ML Model Active",
+            "engine": "XGBoost Classifier + SBERT",
+            "text_model": "all-MiniLM-L6-v2 (384-dim embeddings)",
+            "accuracy": f"{model_info['performance']['accuracy']*100:.2f}%",
+            "precision": f"{model_info['performance']['precision']*100:.2f}%",
+            "f1_score": f"{model_info['performance']['f1_score']*100:.2f}%",
+            "careers_supported": len(model_info['careers']),
+            "data_sources": model_info['data_sources'],
+            "model_loaded": True,
+            "message": "✅ Using NEW ML model (XGBoost + SBERT all-MiniLM-L6-v2)"
+        })
+    elif use_ml:
         try:
             from career_engine_ml import MLCareerEngine
             ml = MLCareerEngine()
             if ml.model_loaded:
                 return jsonify({
-                    "status": "ML-Powered",
+                    "status": "Old ML-Powered (Fallback)",
                     "engine": "Random Forest Classifier",
                     "accuracy": "85%+",
                     "model_loaded": True,
-                    "message": "✅ Using ML-based career recommendations"
+                    "message": "✅ Using old ML-based career recommendations"
                 })
             else:
                 return jsonify({
@@ -276,22 +394,160 @@ def system_info():
 @app.route('/view-roadmap/<path_key>')
 def view_roadmap(path_key):
     """View specific roadmap by path key"""
+    # Get roadmap data (node-based format)
     roadmap_data = get_roadmap(path_key)
     
     if not roadmap_data or not roadmap_data.get('nodes'):
         return redirect(url_for('career_guide'))
     
     # Create or get commitment for this path
-    commitment = {
-        'path_key': path_key,
-        'path_name': roadmap_data.get('name', 'Career Path'),
-        'current_week': 1,
-        'current_phase': 'Foundation'
-    }
+    commitment = session.get('active_career_path', {})
+    if not commitment or commitment.get('path_key') != path_key:
+        commitment = {
+            'path_key': path_key,
+            'path_name': roadmap_data.get('name', 'Career Path'),
+            'current_week': 1,
+            'current_phase': 'Foundation'
+        }
+        session['active_career_path'] = commitment
+        session.modified = True
     
+    # Render the visual roadmap template
     return render_template('roadmap_visual.html', 
                          roadmap_data=roadmap_data,
                          commitment=commitment)
+
+@app.route('/api/courses/<path_key>')
+def get_courses(path_key):
+    """API endpoint to get course recommendations for a career path"""
+    try:
+        recommendations = get_course_recommendations(path_key)
+        return jsonify(recommendations)
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'message': 'Failed to fetch course recommendations'
+        }), 500
+
+@app.route('/api/courses/search/<query>')
+def search_courses(query):
+    """API endpoint to search courses by query"""
+    try:
+        from course_api import CourseRecommendationService
+        service = CourseRecommendationService()
+        
+        # Search YouTube
+        youtube_url = f"{service.youtube_base_url}/search"
+        params = {
+            'part': 'snippet',
+            'q': query,
+            'type': 'video,playlist',
+            'maxResults': 10,
+            'key': service.youtube_api_key,
+            'order': 'relevance'
+        }
+        
+        if service.youtube_api_key != 'YOUR_YOUTUBE_API_KEY':
+            response = requests.get(youtube_url, params=params)
+            response.raise_for_status()
+            data = response.json()
+            
+            courses = []
+            for item in data.get('items', []):
+                item_type = item['id'].get('kind', '').split('#')[-1]
+                item_id = item['id'].get('videoId') or item['id'].get('playlistId')
+                
+                course = {
+                    'id': item_id,
+                    'title': item['snippet']['title'],
+                    'description': item['snippet']['description'][:200] + '...',
+                    'thumbnail': item['snippet']['thumbnails']['medium']['url'],
+                    'channel': item['snippet']['channelTitle'],
+                    'url': f"https://www.youtube.com/{'watch?v=' if item_type == 'video' else 'playlist?list='}{item_id}",
+                    'type': item_type,
+                    'platform': 'YouTube',
+                    'kind': item['id']['kind']
+                }
+                courses.append(course)
+            
+            return jsonify({
+                'query': query,
+                'courses': courses,
+                'total': len(courses)
+            })
+        else:
+            return jsonify({
+                'error': 'YouTube API key not configured',
+                'message': 'Please configure YOUTUBE_API_KEY environment variable'
+            }), 500
+            
+    except Exception as e:
+        return jsonify({
+            'error': str(e),
+            'message': 'Failed to search courses'
+        }), 500
+
+@app.route('/api/ml/predict', methods=['POST'])
+def api_ml_predict():
+    """API endpoint to test new ML model predictions"""
+    try:
+        if not use_new_ml:
+            return jsonify({
+                'error': 'New ML model not available',
+                'message': 'Model artifacts not found or failed to load'
+            }), 503
+        
+        # Get quiz answers from request
+        data = request.get_json()
+        
+        # Predict
+        result = ml_predictor.predict(data, top_n=5)
+        
+        return jsonify(result)
+        
+    except Exception as e:
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'message': 'Failed to generate predictions'
+        }), 500
+
+@app.route('/api/ml/info')
+def api_ml_info():
+    """Get detailed ML model information"""
+    try:
+        if not use_new_ml:
+            return jsonify({
+                'error': 'New ML model not available'
+            }), 503
+        
+        model_info = ml_predictor.get_model_info()
+        return jsonify(model_info)
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e)
+        }), 500
+
+@app.route('/api/ml/careers')
+def api_ml_careers():
+    """Get list of all supported careers"""
+    try:
+        if not use_new_ml:
+            return jsonify({
+                'error': 'New ML model not available'
+            }), 503
+        
+        careers = ml_predictor.get_all_careers()
+        return jsonify({
+            'total': len(careers),
+            'careers': careers
+        })
+        
+    except Exception as e:
+        return jsonify({
+            'error': str(e)
+        }), 500
 
 @app.route('/predict', methods=['POST'])
 def predict():

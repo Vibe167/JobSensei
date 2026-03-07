@@ -1,0 +1,242 @@
+{
+  "Doctor": [
+    "Reading Comprehension",
+    "Critical Thinking",
+    "Active Listening",
+    "Judgment and Decision Making",
+    "Speaking",
+    "Complex Problem Solving",
+    "Active Learning",
+    "Writing"
+  ],
+  "Psychologist": [
+    "Reading Comprehension",
+    "Active Listening",
+    "Social Perceptiveness",
+    "Writing",
+    "Speaking",
+    "Critical Thinking",
+    "Judgment and Decision Making",
+    "Active Learning"
+  ],
+  "Architect": [
+    "Reading Comprehension",
+    "Critical Thinking",
+    "Complex Problem Solving",
+    "Active Listening",
+    "Speaking",
+    "Writing",
+    "Judgment and Decision Making",
+    "Active Learning"
+  ],
+  "Software Engineer": [
+    "Programming",
+    "Reading Comprehension",
+    "Critical Thinking",
+    "Active Listening",
+    "Writing",
+    "Speaking",
+    "Judgment and Decision Making",
+    "Complex Problem Solving"
+  ],
+  "Entrepreneur": [
+    "Active Listening",
+    "Monitoring",
+    "Speaking",
+    "Reading Comprehension",
+    "Critical Thinking",
+    "Management of Personnel Resources",
+    "Social Perceptiveness",
+    "Coordination"
+  ],
+  "Environmental Scientist": [
+    "Reading Comprehension",
+    "Writing",
+    "Speaking",
+    "Active Listening",
+    "Critical Thinking",
+    "Science",
+    "Monitoring",
+    "Complex Problem Solving"
+  ],
+  "Civil Engineer": [
+    "Reading Comprehension",
+    "Critical Thinking",
+    "Active Listening",
+    "Mathematics",
+    "Speaking",
+    "Complex Problem Solving",
+    "Writing",
+    "Monitoring"
+  ],
+  "Cybersecurity Analyst": [
+    "Reading Comprehension",
+    "Critical Thinking",
+    "Active Listening",
+    "Speaking",
+    "Writing",
+    "Monitoring",
+    "Complex Problem Solving",
+    "Active Learning"
+  ],
+  "Mechanical Engineer": [
+    "Reading Comprehension",
+    "Critical Thinking",
+    "Active Listening",
+    "Complex Problem Solving",
+    "Mathematics",
+    "Speaking",
+    "Judgment and Decision Making",
+    "Science"
+  ],
+  "Biotechnologist": [
+    "Science",
+    "Reading Comprehension",
+    "Active Learning",
+    "Critical Thinking",
+    "Writing",
+    "Speaking",
+    "Mathematics",
+    "Active Listening"
+  ],
+  "Marketing Manager": [
+    "Reading Comprehension",
+    "Persuasion",
+    "Critical Thinking",
+    "Speaking",
+    "Active Listening",
+    "Active Learning",
+    "Monitoring",
+    "Social Perceptiveness"
+  ],
+  "Supply Chain Manager": [
+    "Monitoring",
+    "Coordination",
+    "Critical Thinking",
+    "Active Listening",
+    "Reading Comprehension",
+    "Speaking",
+    "Complex Problem Solving",
+    "Judgment and Decision Making"
+  ],
+  "AI/ML Engineer": [
+    "Python",
+    "Deep Learning",
+    "PyTorch",
+    "TensorFlow",
+    "MLOps",
+    "Mathematics",
+    "Research",
+    "Cloud Platforms"
+  ],
+  "Financial Analyst": [
+    "Financial Modeling",
+    "Excel",
+    "Valuation",
+    "Accounting",
+    "Statistics",
+    "Bloomberg",
+    "Communication",
+    "Risk Analysis"
+  ],
+  "HR Manager": [
+    "Management of Personnel Resources",
+    "Reading Comprehension",
+    "Active Listening",
+    "Speaking",
+    "Critical Thinking",
+    "Judgment and Decision Making",
+    "Active Learning",
+    "Writing"
+  ],
+  "Research Scientist": [
+    "Judgment and Decision Making",
+    "Systems Evaluation",
+    "Active Learning",
+    "Complex Problem Solving",
+    "Reading Comprehension",
+    "Critical Thinking",
+    "Systems Analysis",
+    "Programming"
+  ],
+  "Educator": [
+    "Curriculum Design",
+    "Communication",
+    "Classroom Management",
+    "Assessment",
+    "Patience",
+    "Subject Expertise",
+    "Technology",
+    "Mentoring"
+  ],
+  "UX Designer": [
+    "User Research",
+    "Figma",
+    "Prototyping",
+    "Wireframing",
+    "Usability Testing",
+    "Empathy",
+    "Design Thinking",
+    "Communication"
+  ],
+  "Lawyer": [
+    "Active Listening",
+    "Speaking",
+    "Critical Thinking",
+    "Reading Comprehension",
+    "Writing",
+    "Persuasion",
+    "Judgment and Decision Making",
+    "Negotiation"
+  ],
+  "Content Creator": [
+    "Writing",
+    "Reading Comprehension",
+    "Active Listening",
+    "Speaking",
+    "Critical Thinking",
+    "Active Learning",
+    "Judgment and Decision Making",
+    "Social Perceptiveness"
+  ],
+  "Business Consultant": [
+    "Active Listening",
+    "Reading Comprehension",
+    "Critical Thinking",
+    "Judgment and Decision Making",
+    "Complex Problem Solving",
+    "Speaking",
+    "Monitoring",
+    "Writing"
+  ],
+  "Product Manager": [
+    "Reading Comprehension",
+    "Critical Thinking",
+    "Active Listening",
+    "Speaking",
+    "Monitoring",
+    "Complex Problem Solving",
+    "Writing",
+    "Judgment and Decision Making"
+  ],
+  "Graphic Designer": [
+    "Critical Thinking",
+    "Speaking",
+    "Active Listening",
+    "Reading Comprehension",
+    "Active Learning",
+    "Writing",
+    "Complex Problem Solving",
+    "Coordination"
+  ],
+  "Data Scientist": [
+    "Python",
+    "Statistics",
+    "Machine Learning",
+    "SQL",
+    "Data Visualization",
+    "Pandas",
+    "Communication",
+    "NumPy"
+  ]
+}

@@ -1,0 +1,31 @@
+{
+  "numeric_cols": [
+    "Q1_realistic",
+    "Q2_investigative",
+    "Q3_artistic",
+    "Q4_social",
+    "Q5_enterprising",
+    "Q6_conventional",
+    "Q7_math",
+    "Q8_communication",
+    "Q9_technical",
+    "Q10_design"
+  ],
+  "categorical_cols": [
+    "Q11_work_env",
+    "Q12_team_size",
+    "Q13_risk",
+    "Q14_pace",
+    "Q15_values",
+    "Q16_prefers",
+    "Q17_balance",
+    "Q18_education",
+    "Q19_subjects",
+    "Q20_coding",
+    "Q21_indoor",
+    "Q22_age"
+  ],
+  "total_features": 406,
+  "sbert_dims": 384,
+  "sbert_note": "SBERT embeddings added at prediction time for real user text"
+}

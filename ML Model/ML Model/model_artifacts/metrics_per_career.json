@@ -1,0 +1,146 @@
+{
+  "AI/ML Engineer": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Architect": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Biotechnologist": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Business Consultant": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Civil Engineer": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Content Creator": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Cybersecurity Analyst": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Data Scientist": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Doctor": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Educator": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Entrepreneur": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Environmental Scientist": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Financial Analyst": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Graphic Designer": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "HR Manager": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Lawyer": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Marketing Manager": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Mechanical Engineer": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Product Manager": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Psychologist": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Research Scientist": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Software Engineer": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "Supply Chain Manager": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  },
+  "UX Designer": {
+    "precision": 1.0,
+    "recall": 1.0,
+    "f1_score": 1.0,
+    "support": 10
+  }
+}

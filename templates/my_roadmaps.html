@@ -297,6 +297,7 @@
     let currentUser = null;
 
     const careerPaths = {
+      // Original paths
       'software_engineer_backend': 'Software Engineer (Backend/Systems)',
       'frontend_developer': 'Frontend Developer',
       'fullstack_developer': 'Full Stack Developer',
@@ -308,7 +309,37 @@
       'cybersecurity': 'Cybersecurity Specialist',
       'product_manager': 'Product Manager',
       'digital_marketing': 'Digital Marketing Specialist',
-      'business_analyst': 'Business Analyst'
+      'business_analyst': 'Business Analyst',
+      
+      // All 24 ML Model Careers
+      'software_engineer': 'Software Engineer',
+      'software_developer': 'Software Engineer',
+      'ai/ml_engineer': 'AI/ML Engineer',
+      'aiml_engineer': 'AI/ML Engineer',
+      'data_scientist': 'Data Scientist',
+      'ux_designer': 'UX Designer',
+      'ui_ux_designer': 'UX Designer',
+      'cybersecurity_analyst': 'Cybersecurity Analyst',
+      'cyber_security_analyst': 'Cybersecurity Analyst',
+      'marketing_manager': 'Marketing Manager',
+      'financial_analyst': 'Financial Analyst',
+      'graphic_designer': 'Graphic Designer',
+      'content_creator': 'Content Creator',
+      'entrepreneur': 'Entrepreneur',
+      'hr_manager': 'HR Manager',
+      'human_resources_manager': 'HR Manager',
+      'business_consultant': 'Business Consultant',
+      'mechanical_engineer': 'Mechanical Engineer',
+      'civil_engineer': 'Civil Engineer',
+      'architect': 'Architect',
+      'biotechnologist': 'Biotechnologist',
+      'environmental_scientist': 'Environmental Scientist',
+      'doctor': 'Doctor',
+      'educator': 'Educator',
+      'psychologist': 'Psychologist',
+      'lawyer': 'Lawyer',
+      'research_scientist': 'Research Scientist',
+      'supply_chain_manager': 'Supply Chain Manager'
     };
 
     onAuthStateChanged(auth, (user) => {
@@ -356,6 +387,7 @@
 
         // Get total nodes for each path
         const pathNodeCounts = {
+          // Original paths
           'software_engineer_backend': 24,
           'frontend_developer': 31,
           'fullstack_developer': 22,
@@ -367,7 +399,35 @@
           'cybersecurity': 9,
           'product_manager': 9,
           'digital_marketing': 24,
-          'business_analyst': 9
+          'business_analyst': 9,
+          
+          // All 24 ML Model Careers (approximate node counts)
+          'software_engineer': 50,
+          'software_developer': 50,
+          'ai/ml_engineer': 50,
+          'aiml_engineer': 50,
+          'ux_designer': 40,
+          'cybersecurity_analyst': 35,
+          'cyber_security_analyst': 35,
+          'marketing_manager': 30,
+          'financial_analyst': 30,
+          'graphic_designer': 30,
+          'content_creator': 30,
+          'entrepreneur': 30,
+          'hr_manager': 30,
+          'human_resources_manager': 30,
+          'business_consultant': 30,
+          'mechanical_engineer': 30,
+          'civil_engineer': 30,
+          'architect': 30,
+          'biotechnologist': 30,
+          'environmental_scientist': 30,
+          'doctor': 30,
+          'educator': 30,
+          'psychologist': 30,
+          'lawyer': 30,
+          'research_scientist': 30,
+          'supply_chain_manager': 30
         };
 
         for (const pathKey of validPaths) {
